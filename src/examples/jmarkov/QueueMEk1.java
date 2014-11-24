@@ -14,7 +14,7 @@ import jmarkov.basic.StatesSet;
  * require two exponential stages of service: the k-th stage has exponential
  * rate $\mu_k$. A Matrix Geometric Example (Nelson chapter 9).
  * 
- * @author Julio Goez. Universidad de los Andes.
+ * @author Julio Goez. Universidad de los Andes. Test del repo
  */
 public class QueueMEk1 extends GeomProcess<QueueMEk1State, QueueMEk1Event> {
     // only for emtpy system.
