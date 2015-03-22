@@ -1,5 +1,8 @@
 package jphase.generator;
 import java.util.Random;
+import umontreal.iro.lecuyer.rng.RandomStream;
+import umontreal.iro.lecuyer.rng.MRG32k3a;
+
 
 import jphase.AbstractDiscPhaseVar;
 
@@ -50,7 +53,7 @@ public class NeutsDiscPHGenerator extends PhaseGenerator {
 	/**
 	 * Random generator 
 	 */
-	Random rand;
+	RandomStream rand;
 	
 	/**
 	 * 
@@ -83,7 +86,7 @@ public class NeutsDiscPHGenerator extends PhaseGenerator {
 	
 	@Override
 	protected void initialize(){
-		rand = new Random();
+		rand = new MRG32k3a();
 		int n = this.var.getNumPhases();
 		this.alphaDist=new double[n+1];
 		this.alphaAlias=new int[n+1];

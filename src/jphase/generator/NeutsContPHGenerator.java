@@ -1,6 +1,8 @@
 package jphase.generator;
 
 import java.util.Random;
+import umontreal.iro.lecuyer.rng.RandomStream;
+import umontreal.iro.lecuyer.rng.MRG32k3a;
 
 import jphase.AbstractContPhaseVar;
 
@@ -58,7 +60,8 @@ public class NeutsContPHGenerator extends PhaseGenerator {
 		/**
 		 * Random generator 
 		 */
-		Random rand;
+		//Random rand;
+		RandomStream rand;
 		
 		/**
 		 * @see jphase.generator.PhaseGenerator#PhaseGenerator(jphase.PhaseVar)
@@ -73,14 +76,14 @@ public class NeutsContPHGenerator extends PhaseGenerator {
 			double x = 0;
 			int n = this.var.getNumPhases();
 			int[] k = new int[n+1];//number of visits to each phase
-			int estado = GeneratorUtils.getNumber(this.alphaDist,this.alphaAlias,this.alphaCutoff, rand);
+			int estado = GeneratorUtils.getNumber(this.alphaDist,this.alphaAlias,this.alphaCutoff, this.rand);
 			if(estado==0)absorbed=true;
 			while(absorbed == false){
 				k[estado]++;
-				estado=GeneratorUtils.getNumber(this.matrixDist[estado-1],this.matrixAlias[estado-1],this.matrixCutoff[estado-1], rand);
+				estado=GeneratorUtils.getNumber(this.matrixDist[estado-1],this.matrixAlias[estado-1],this.matrixCutoff[estado-1], this.rand);
 				if(estado==0)absorbed=true;
 			}
-			for(int i=0;i < n; i++)if(k[i+1]>0)x+=GeneratorUtils.erlang(this.rates[i],k[i+1], rand);
+			for(int i=0;i < n; i++)if(k[i+1]>0)x+=GeneratorUtils.erlang(this.rates[i],k[i+1], this.rand);
 			return x;
 		}
 	
@@ -93,7 +96,8 @@ public class NeutsContPHGenerator extends PhaseGenerator {
 		
 		@Override
 		protected void initialize(){
-			rand = new Random();
+			//rand = new Random();
+			rand = new MRG32k3a();
 			
 			int n = this.var.getNumPhases();
 			this.alphaDist=new double[n+1];

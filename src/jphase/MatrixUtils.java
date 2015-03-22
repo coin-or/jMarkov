@@ -1406,5 +1406,54 @@ public class MatrixUtils {
         }
 
     }
+    
+    /**
+     * Checks whether a vector is sub-stochastic or not 
+     * @param a Vector to check
+     * @return true if the vector is sub-stochastic, false otherwise
+     */
+    public static boolean checkSubStochasticVector(Vector a){
+    	boolean res = false; 
+    	boolean nonneg = true; 
+    	double cumsum = a.get(0); 
+    	for (int i = 1; i < a.size(); i++){
+    		if (a.get(i) < -Epsilon){
+    			nonneg = false;
+    			break;
+    		}
+    		cumsum += a.get(i);
+    	}
+    	if (cumsum <= 1 + Epsilon && nonneg) res = true;  
+    	return res;
+    }
+    
+    /**
+     * Checks whether a matrix is a sub-generator or not 
+     * @param a Vector to check
+     * @return true if the vector is sub-stochastic, false otherwise
+     */
+    public static boolean checkSubGeneratorMatrix(Matrix A){
+    	boolean res = true; 
+    	double n = A.numRows();
+    	double m = A.numColumns();
+    	if (n == m){
+	    	for (int i = 0; i < n; i++){
+	    		double cumsum = A.get(i,0); 
+	        	for (int j = 1; j < m; j++){
+	        		cumsum += A.get(i,j);
+		        	if ((i == j && A.get(i,j) > - Epsilon) || (i != j && A.get(i,j) < - Epsilon)){
+		    			res = false;
+		    			i += n;
+		    			break;
+		    		}
+	        	}
+	        	if (cumsum > Epsilon){
+	        		res = false;
+	        		break;
+	        	}
+	    	}
+	    }
+    	return res;
+    }
 
 }

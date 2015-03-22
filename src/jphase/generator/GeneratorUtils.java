@@ -2,6 +2,8 @@ package jphase.generator;
 
 import no.uib.cipr.matrix.Vector;
 import java.util.Random;
+import umontreal.iro.lecuyer.rng.RandomStream;
+
 
 import jphase.PhaseVar;
 
@@ -133,7 +135,7 @@ public class GeneratorUtils {
 	 * @param rand Random type object to use as generator of random numbers
 	 * @return A random number with discrete distribution dist in {0,...,n}
 	 */
-	public static int getNumber(double[] dist, int[] alias, double[] cutoff, Random rand) {
+	public static int getNumber(double[] dist, int[] alias, double[] cutoff, RandomStream rand) {
 		double u1 = rand.nextDouble();
 		double u2 = rand.nextDouble();
 		int entero = new Double(Math.floor((dist.length)*u1)).intValue();
@@ -147,7 +149,7 @@ public class GeneratorUtils {
 	 * @param rand Random number source
 	 * @return random number with Erlang(lambda, r) distribution. 
 	 */
-	public static double erlang(double lambda, int r, Random rand){
+	public static double erlang(double lambda, int r, RandomStream rand){
 		if(r>0){
 		double x=rand.nextDouble();
 		for(int i = 1; i < r; i++)x*=rand.nextDouble(); 

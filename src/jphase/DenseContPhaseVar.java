@@ -5,7 +5,6 @@ import no.uib.cipr.matrix.Vector;
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;
 
-
 /** 
  * This class allows the creation and manipulation 
  * of Continuous Phase-type distributions represented by dense matrices.
@@ -50,9 +49,16 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 	 * @param A rate matrix
 	 * @param alpha initial probability distribution vector
 	 */
-	public DenseContPhaseVar(DenseVector alpha, DenseMatrix A) {
-		this.A = A;
-		this.alpha = alpha;
+	public DenseContPhaseVar(DenseVector alpha, DenseMatrix A){
+		try{
+        	if( checkContPhaseVar(alpha, A)){
+        		this.A = A;
+        		this.alpha = alpha;
+        	}
+        }catch (Exception e){
+        	e.printStackTrace(); 
+        }
+		
 	}
 
 	/**
@@ -61,9 +67,16 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 	 * @param A rate matrix
 	 * @param alpha initial probability distribution vector
 	 */
-	public DenseContPhaseVar(Vector alpha, Matrix A) {
-		this.A = (DenseMatrix)A.copy();
-		this.alpha = (DenseVector)alpha.copy();
+	public DenseContPhaseVar(Vector alpha, Matrix A){
+		try{
+        	if( checkContPhaseVar(alpha, A)){
+        		this.A = (DenseMatrix)A.copy();
+        		this.alpha = (DenseVector)alpha.copy();
+        	}
+        }catch (Exception e){
+        	e.printStackTrace(); 
+        }
+		
 	}
 	
 	/**
@@ -71,6 +84,7 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 	 * with dense representation
 	 * @param A rate matrix
 	 * @param alpha initial probability distribution vector
+	 * @throws Exception 
 	 */
     public DenseContPhaseVar(double[] alpha, double[][] A) {
         int n1, n2;
@@ -82,9 +96,27 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
         } else {
             DenseMatrix Am= new DenseMatrix(A);
             DenseVector Vm= new DenseVector(alpha);
-            this.A= Am;
-            this.alpha = Vm;
+            try{
+            	if( checkContPhaseVar(Vm, Am)){
+	            	this.A= Am;
+	            	this.alpha = Vm;
+            	}
+            }catch (Exception e){
+            	e.printStackTrace();
+            }
         }
+    }
+    
+    public boolean checkContPhaseVar(Vector alpha, Matrix A) throws Exception{
+    	if (!MatrixUtils.checkSubStochasticVector((Vector)alpha)){
+    		throw new Exception(
+                    "Vector provided is not sub-stochastic");
+    	}else if (!MatrixUtils.checkSubGeneratorMatrix(A)){
+    		throw new Exception(
+                    "Matrix provided is not a sub-generator");
+        	
+        }
+        return true;
     }
     
     
@@ -94,7 +126,7 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 	 * @param lambda exponential distribution rate
 	 * @return Dense Continuous Phase-Type Distribution
 	 */
-	public static DenseContPhaseVar expo(double lambda) {
+	public static DenseContPhaseVar expo(double lambda){
 		double[][] matriz = new double[1][1];
 		matriz[0][0] = -lambda;
 		DenseMatrix A = new DenseMatrix(matriz);
@@ -102,7 +134,12 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 		double[] vector = new double[1];
 		vector[0] = 1;
 		DenseVector alpha = new DenseVector(vector);
-		return new DenseContPhaseVar(alpha, A);
+		try{
+			return new DenseContPhaseVar(alpha, A);
+		}catch(Exception e){
+			e.printStackTrace();
+			return new DenseContPhaseVar();
+		}
 	}
 
 	/**
@@ -112,7 +149,7 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 	 * @param n number of exponential phases
 	 * @return Dense Continuous Phase-Type Distribution
 	 */
-	public static DenseContPhaseVar Erlang(double lambda, int n) {
+	public static DenseContPhaseVar Erlang(double lambda, int n){
 		double[][] matriz = new double[n][n];
 		for (int i = 0; i < n; i++) {
 			matriz[i][i] = -lambda;
@@ -125,14 +162,24 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 		double[] vector = new double[n];
 		vector[0] = 1;
 		DenseVector alpha = new DenseVector(vector);
-		return new DenseContPhaseVar(alpha, A);
+		try{
+			return new DenseContPhaseVar(alpha, A);
+		}catch(Exception e){
+			e.printStackTrace();
+			return new DenseContPhaseVar();
+		}
 	}
 	
-	public static DenseContPhaseVar HipoExponential(double[] lambdas) {
+	public static DenseContPhaseVar HipoExponential(double[] lambdas){
 		HypoExponentialVar var = new HypoExponentialVar(lambdas);
 		Matrix A = var.getMatrix();
 		Vector alpha = var.getVector();
-		return new DenseContPhaseVar(alpha, A);
+		try{
+			return new DenseContPhaseVar(alpha, A);
+		}catch(Exception e){
+			e.printStackTrace();
+			return new DenseContPhaseVar();
+		}
 	}
 
 	
@@ -143,7 +190,7 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 	 * @param probs initial probability vector
 	 * @return Dense Continuous Phase-Type Distribution
 	 */
-	public static DenseContPhaseVar HyperExpo(double[] lambdas, double[] probs) {
+	public static DenseContPhaseVar HyperExpo(double[] lambdas, double[] probs){
 		if(lambdas.length==probs.length){
 			int n=lambdas.length;
 			double[][] matrix = new double[n][n];
@@ -154,7 +201,12 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 			}
 			DenseMatrix A = new DenseMatrix(matrix);
 			DenseVector alpha = new DenseVector(vector);
-			return new DenseContPhaseVar(alpha, A);
+			try{
+				return new DenseContPhaseVar(alpha, A);
+			}catch(Exception e){
+				e.printStackTrace();
+				return new DenseContPhaseVar();
+			}
 		}
         throw new RuntimeException("Rates and probability vectors have different length");
 	}
@@ -173,7 +225,7 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 		int k,
 		double[] lambdas,
 		int[] n,
-		double[] probs) {
+		double[] probs){
 		int N, l, r;
 		N = l = r = 0;
 		for (int i = 0; i < k; i++)
@@ -197,7 +249,12 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 
 		DenseMatrix A = new DenseMatrix(matriz);
 		DenseVector alpha = new DenseVector(vector);
-		return new DenseContPhaseVar(alpha, A);
+		try{
+			return new DenseContPhaseVar(alpha, A);
+		}catch(Exception e){
+			e.printStackTrace();
+			return new DenseContPhaseVar();
+		}
 	}
 
 	
@@ -209,10 +266,15 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 	 * Continuous variable must be constructed
 	 * @return Dense Continuous Phase-Type Distribution
 	 */
-	public static DenseContPhaseVar HyperErlang(HyperErlangVar var) {
+	public static DenseContPhaseVar HyperErlang(HyperErlangVar var){
 		DenseMatrix A = new DenseMatrix(var.getMatrix());
 		DenseVector alpha = new DenseVector(var.getVector());
-		return new DenseContPhaseVar(alpha, A);
+		try{
+			return new DenseContPhaseVar(alpha, A);
+		}catch(Exception e){
+			e.printStackTrace();
+			return new DenseContPhaseVar();
+		}
 	}
 	
 	
@@ -225,7 +287,7 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 	 * (no absorption) in each phase except the last one.  
 	 * @return Dense Continuous Phase-Type Distribution
 	 */
-	public static DenseContPhaseVar Coxian(int n, double[] lambdas, double[] probs) {
+	public static DenseContPhaseVar Coxian(int n, double[] lambdas, double[] probs){
 		if(n <= 0)throw new IllegalArgumentException("The number of phases in the" +
 		"Coxian distribution must be greater than zero");
 		
@@ -247,7 +309,12 @@ public class DenseContPhaseVar extends AbstractContPhaseVar {
 
 		DenseMatrix A = new DenseMatrix(matriz);
 		DenseVector alpha = new DenseVector(vector);
-		return new DenseContPhaseVar(alpha, A);
+		try{
+			return new DenseContPhaseVar(alpha, A);
+		}catch(Exception e){
+			e.printStackTrace();
+			return new DenseContPhaseVar();
+		}
 	}
 	
 	
