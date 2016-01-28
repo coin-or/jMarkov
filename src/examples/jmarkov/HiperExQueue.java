@@ -65,7 +65,6 @@ public class HiperExQueue extends
                 destStates.add(gs);
             }
         }
-
     }
 
     /*
@@ -265,7 +264,7 @@ class HiperExQueueEvent extends Event {
 
 /**
  *  * This class define the states in the queue.
- * @author Julio Goez - Germ�n Ria�o. Universidad de los Andes.
+ * @author Julio Goez - German Riano. Universidad de los Andes.
  */
 class HiperExQueueState extends PropertiesState {
 
