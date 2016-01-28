@@ -53,7 +53,7 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
      * @param servTime_low
      */
     public  PriorityQueueMPHPH(double lambda_hi, double lambda_low, PhaseVar servTime_hi, PhaseVar servTime_low, int bufferCapacity) {
-        super(new PriorityQueueMPHPHState(0,0), 
+        super(new PriorityQueueMPHPHState(0,0,0), 
         		PriorityQueueMPHPHEvent.getAllEvents(servTime_hi, servTime_low));
         this.lambda_hi = lambda_hi;
         this.lambda_low = lambda_low;
@@ -84,19 +84,19 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
 	        		result = true;
             	break;
 	        case SERVICE_END_HI:
-	            result =  (state.getNumberHiJobs() > 0 &&  state.getServicePhase() == event.eventPhase); 
+	            result =  (state.getServiceType()==1 && state.getServicePhase() == event.eventPhase); 
 	            break;
 	        case SERVICE_PHASECHG_HI:
-	            result =  (state.getNumberHiJobs() > 0 &&  state.getServicePhase() == event.eventPhase); 
+	            result =  (state.getServiceType()==1 && state.getServicePhase() == event.eventPhase); 
 	            break;
 			case ARRIVAL_LOW:
 				result = true; 
 				break;
 			case SERVICE_END_LOW:
-				result =  (state.getNumberHiJobs() == 0 &&  state.getServicePhase() == event.eventPhase);
+				result =  (state.getServiceType()==2 && state.getServicePhase() == event.eventPhase);
 				break;
 			case SERVICE_PHASECHG_LOW:
-				result =  (state.getNumberHiJobs() == 0 &&  state.getServicePhase() == event.eventPhase);
+				result =  (state.getServiceType()==2 && state.getServicePhase() == event.eventPhase);
 				break;
         }
         return result;
@@ -111,6 +111,7 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
 
         int curPhase = state.getServicePhase(); 
         int curNumHiJobs = state.getNumberHiJobs(); 
+        int curServiceType = state.getServiceType(); 
         int rLevel = 0;
 
         switch (event.eventType) {
@@ -118,11 +119,11 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
 	            rLevel = +1;
 	            if (absLevel == 0 && curNumHiJobs == 0) 
             		// low-priority arrival in an empty system: level increases and starts service 
-	                addDestsServiceEnd(rLevel, destStates, servTime_low, curNumHiJobs);
+	                addDestsServiceEnd(rLevel, destStates, servTime_low, curNumHiJobs, 2);
 	            else // low-priority arrival in non-empty system: only modifies the level by 1
 	                destStates.add(
 	                			new GeomRelState<PriorityQueueMPHPHState>(
-	                				new PriorityQueueMPHPHState(curNumHiJobs, curPhase), rLevel));
+	                				new PriorityQueueMPHPHState(curNumHiJobs, curPhase, curServiceType), rLevel));
 	            break;
 	            
 	        case SERVICE_END_LOW:
@@ -130,54 +131,54 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
 	            if (absLevel == 1){
 	            	if( curNumHiJobs == 0){ // low-priority service completion that leaves the system empty
 	            		destStates.add(new GeomRelState<PriorityQueueMPHPHState>(
-                						new PriorityQueueMPHPHState(0, 0))
+                						new PriorityQueueMPHPHState(0, 0, 0))
 	            						);
 	            	}else{	// low-priority service completion that allows a high-priority job to start service 
-	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs);
+	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs, 1);
 	            	}
 	            }
 	            else{
 	            	if( curNumHiJobs == 0){ // low-priority service completion, a new low-priority job starts service 
-	            		addDestsServiceEnd(rLevel, destStates, servTime_low, curNumHiJobs);
+	            		addDestsServiceEnd(rLevel, destStates, servTime_low, curNumHiJobs, 2);
 	            	}else{ // low-priority service completion, a new high-priority job starts service
-	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs);
+	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs, 1);
 	            	}
 	            }
 	            break;
 	            
 	        case SERVICE_PHASECHG_LOW:
-	            addDestsServiceChg(rLevel, destStates, servTime_low, curNumHiJobs, curPhase); 
+	            addDestsServiceChg(rLevel, destStates, servTime_low, curNumHiJobs, curPhase, curServiceType); 
 	            break;
 	            
 			case ARRIVAL_HI:
 				if (absLevel == 0 && curNumHiJobs == 0) 
             		// hi-priority arrival in an empty system: number of high jobs increases and starts service 
-	                addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs+1);
+	                addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs+1, 1);
 	            else // hi-priority arrival in non-empty system: only increases the number of high-priority jobs
 	                destStates.add(
 	                			new GeomRelState<PriorityQueueMPHPHState>(
-	                				new PriorityQueueMPHPHState(curNumHiJobs+1, curPhase), rLevel));
+	                				new PriorityQueueMPHPHState(curNumHiJobs+1, curPhase, curServiceType), rLevel));
 				break;
 			case SERVICE_END_HI:
 				if (absLevel == 0){
 	            	if( curNumHiJobs == 1){ // hi-priority service completion that leaves the system empty
 	            		destStates.add(new GeomRelState<PriorityQueueMPHPHState>(
-                						new PriorityQueueMPHPHState(0, 0)) );
+                						new PriorityQueueMPHPHState(0, 0, 0)) );
 	            	}else{	// hi-priority service completion that allows a high-priority job to start service 
-	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs-1);
+	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs-1, 1);
 	            	}
 	            }
 	            else{
 	            	if( curNumHiJobs == 1){ // hi-priority service completion, a new low-priority job starts service 
-	            		addDestsServiceEnd(rLevel, destStates, servTime_low, curNumHiJobs-1);
+	            		addDestsServiceEnd(rLevel, destStates, servTime_low, curNumHiJobs-1, 2);
 	            	}else{ // hi-priority service completion, a new high-priority job starts service
-	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs-1);
+	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs-1, 1);
 	            	}
 	            }
 				
 				break;
 			case SERVICE_PHASECHG_HI:
-	            addDestsServiceChg(rLevel, destStates, servTime_hi, curNumHiJobs, curPhase); 
+	            addDestsServiceChg(rLevel, destStates, servTime_hi, curNumHiJobs, curPhase, curServiceType); 
 	            break;
 				
         }
@@ -192,13 +193,13 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
      * @param destStates
      * @param serVar: service-time PH variable of the new job 
      */
-    void addDestsServiceEnd(int relLevel, StatesSet<GeomRelState<PriorityQueueMPHPHState>> destStates, PhaseVar serVar, int numHiJobs) {
+    void addDestsServiceEnd(int relLevel, StatesSet<GeomRelState<PriorityQueueMPHPHState>> destStates, PhaseVar serVar, int numHiJobs, int serType) {
         double alpha[] = serVar.getVectorArray(); // initial probability distribution 
         int m = serVar.getNumPhases();
         for (int n = 0; n < m; n++) {
             if (alpha[n] > 0) {
                 destStates.add( 
-                		new GeomRelState<PriorityQueueMPHPHState>(new PriorityQueueMPHPHState(numHiJobs, n+1), relLevel)
+                		new GeomRelState<PriorityQueueMPHPHState>(new PriorityQueueMPHPHState(numHiJobs, n+1, serType), relLevel)
                 		);
             }
         }
@@ -210,14 +211,14 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
      * @param destStates
      * @param serVar: service-time PH variable of the new job 
      */
-    void addDestsServiceChg(int relLevel, StatesSet<GeomRelState<PriorityQueueMPHPHState>> destStates, PhaseVar serVar, int numHiJobs, int currPhase) {
+    void addDestsServiceChg(int relLevel, StatesSet<GeomRelState<PriorityQueueMPHPHState>> destStates, PhaseVar serVar, int numHiJobs, int currPhase, int curServiceType) {
         double transMatrix[][] = serVar.getMatrixArray(); // sub-generator matrix 
         currPhase = currPhase - 1; 
         int m = serVar.getNumPhases();
         for (int n = 0; n < m; n++) {
             if (transMatrix[currPhase][n] > 0) {
                 destStates.add( 
-                		new GeomRelState<PriorityQueueMPHPHState>(new PriorityQueueMPHPHState(numHiJobs, n+1), relLevel)
+                		new GeomRelState<PriorityQueueMPHPHState>(new PriorityQueueMPHPHState(numHiJobs, n+1, curServiceType), relLevel)
                 		);
             }
         }
@@ -226,84 +227,94 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
     
     
     @Override
-    public double rate(PriorityQueueMPHPHState currState, int currLevel, 
-    						PriorityQueueMPHPHState destState, int destLevel, PriorityQueueMPHPHEvent event) { {
+    public double rate(PriorityQueueMPHPHState curState, int curLevel, 
+    						PriorityQueueMPHPHState destState, int destLevel, PriorityQueueMPHPHEvent event) { 
     	
-        StatesSet<GeomRelState<PriorityQueueMPHPHState>> destStates = new StatesSet<GeomRelState<PriorityQueueMPHPHState>>();
-
-        int curPhase = state.getServicePhase(); 
-        int curNumHiJobs = state.getNumberHiJobs(); 
-        int rLevel = 0;
-
+		double rate = -1; 
+		int curPhase = curState.getServicePhase();
+		int curNumHiJobs = curState.getNumberHiJobs();
+		int newPhase = destState.getServicePhase();
         switch (event.eventType) {
 	        case ARRIVAL_LOW:
-	            rLevel = +1;
-	            if (absLevel == 0 && curNumHiJobs == 0) 
-            		// low-priority arrival in an empty system: level increases and starts service 
-	                addDestsServiceEnd(rLevel, destStates, servTime_low, curNumHiJobs);
-	            else // low-priority arrival in non-empty system: only modifies the level by 1
-	                destStates.add(
-	                			new GeomRelState<PriorityQueueMPHPHState>(
-	                				new PriorityQueueMPHPHState(curNumHiJobs, curPhase), rLevel));
+	            if (curLevel == 0 && curNumHiJobs == 0){
+            		// low-priority arrival in an empty system: level increases and starts service
+	            	double initVector[] = servTime_low.getVectorArray(); 
+	                rate = lambda_low*initVector[newPhase-1];
+	            }
+	            else{ // low-priority arrival in non-empty system: only modifies the level by 1
+	            	rate = lambda_low; 
+	            }
 	            break;
 	            
 	        case SERVICE_END_LOW:
-	            rLevel = -1;
-	            if (absLevel == 1){
+	            if (curLevel == 1){
 	            	if( curNumHiJobs == 0){ // low-priority service completion that leaves the system empty
-	            		destStates.add(new GeomRelState<PriorityQueueMPHPHState>(
-                						new PriorityQueueMPHPHState(0, 0))
-	            						);
+	            		double exitVector[] = servTime_low.getMat0Array(); 
+	            		rate = exitVector[curPhase-1]; 
 	            	}else{	// low-priority service completion that allows a high-priority job to start service 
-	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs);
+	            		double exitVector[] = servTime_low.getMat0Array();
+	            		double initVector[] = servTime_hi.getVectorArray();
+	            		rate = exitVector[curPhase-1] * initVector[newPhase-1];
 	            	}
 	            }
 	            else{
 	            	if( curNumHiJobs == 0){ // low-priority service completion, a new low-priority job starts service 
-	            		addDestsServiceEnd(rLevel, destStates, servTime_low, curNumHiJobs);
+	            		double exitVector[] = servTime_low.getMat0Array();
+	            		double initVector[] = servTime_low.getVectorArray();
+	            		rate = exitVector[curPhase-1] * initVector[newPhase-1];
 	            	}else{ // low-priority service completion, a new high-priority job starts service
-	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs);
+	            		double exitVector[] = servTime_low.getMat0Array();
+	            		double initVector[] = servTime_hi.getVectorArray();
+	            		rate = exitVector[curPhase-1] * initVector[newPhase-1];
 	            	}
 	            }
 	            break;
 	            
 	        case SERVICE_PHASECHG_LOW:
-	            addDestsServiceChg(rLevel, destStates, servTime_low, curNumHiJobs, curPhase); 
+	        	double transMatrixLow[][] = servTime_low.getMatrixArray(); 
+	        	rate = transMatrixLow[curPhase-1][newPhase-1]; 
 	            break;
 	            
 			case ARRIVAL_HI:
-				if (absLevel == 0 && curNumHiJobs == 0) 
-            		// hi-priority arrival in an empty system: number of high jobs increases and starts service 
-	                addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs+1);
+				if (curLevel == 0 && curNumHiJobs == 0){ 
+            		// hi-priority arrival in an empty system: number of high jobs increases and starts service
+					double initVector[] = servTime_hi.getVectorArray(); 
+					rate = lambda_hi*initVector[newPhase-1];
+				}
 	            else // hi-priority arrival in non-empty system: only increases the number of high-priority jobs
-	                destStates.add(
-	                			new GeomRelState<PriorityQueueMPHPHState>(
-	                				new PriorityQueueMPHPHState(curNumHiJobs+1, curPhase), rLevel));
+	            	rate = lambda_hi;
 				break;
 			case SERVICE_END_HI:
-				if (absLevel == 0){
+				if (curLevel == 0){
 	            	if( curNumHiJobs == 1){ // hi-priority service completion that leaves the system empty
-	            		destStates.add(new GeomRelState<PriorityQueueMPHPHState>(
-                						new PriorityQueueMPHPHState(0, 0)) );
+	            		double exitVector[] = servTime_hi.getMat0Array(); 
+	            		rate = exitVector[curPhase-1];
 	            	}else{	// hi-priority service completion that allows a high-priority job to start service 
-	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs-1);
+	            		double exitVector[] = servTime_hi.getMat0Array();
+	            		double initVector[] = servTime_hi.getVectorArray();
+	            		rate = exitVector[curPhase-1] * initVector[newPhase-1];
 	            	}
 	            }
 	            else{
 	            	if( curNumHiJobs == 1){ // hi-priority service completion, a new low-priority job starts service 
-	            		addDestsServiceEnd(rLevel, destStates, servTime_low, curNumHiJobs-1);
+	            		double exitVector[] = servTime_hi.getMat0Array();
+	            		double initVector[] = servTime_low.getVectorArray();
+	            		rate = exitVector[curPhase-1] * initVector[newPhase-1];
 	            	}else{ // hi-priority service completion, a new high-priority job starts service
-	            		addDestsServiceEnd(rLevel, destStates, servTime_hi, curNumHiJobs-1);
+	            		double exitVector[] = servTime_hi.getMat0Array();
+	            		double initVector[] = servTime_hi.getVectorArray();
+	            		rate = exitVector[curPhase-1] * initVector[newPhase-1];
 	            	}
 	            }
 				
 				break;
 			case SERVICE_PHASECHG_HI:
-	            addDestsServiceChg(rLevel, destStates, servTime_hi, curNumHiJobs, curPhase); 
+				double transMatrixHi[][] = servTime_hi.getMatrixArray(); 
+	        	rate = transMatrixHi[curPhase-1][newPhase-1];  
 	            break;
 				
         }
-        return destStates.toStateArray();
+        return rate;
     }
 
     
@@ -323,10 +334,19 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
         
         
         model.showGUI();
+        model.setDebugLevel(3);
         model.generate();
-        model.setDebugLevel(0);
         model.printAll();
     }
+
+
+	@Override
+	public String description() {
+		String desc = "Priority Queue\n" + "lambda high: " + this.lambda_hi + "\nlambda low: " + this.lambda_low + "\n";
+		desc = "Service time low:" + this.servTime_low.toString() +"\n";
+		desc = "Service time high:" + this.servTime_hi.toString() +"\n";
+		return desc;
+	}
 }
 
 
@@ -336,10 +356,18 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
 
 class PriorityQueueMPHPHState extends PropertiesState {
 	
-	public PriorityQueueMPHPHState(int numberHiJobs, int servicePhase) {
-		super(2);
+	
+	/**
+	 * 
+	 * @param numberHiJobs
+	 * @param servicePhase
+	 * @param serviceType: type of service in execution: 0 (no service), 1 (high priority), 2 (low priority)
+	 */
+	public PriorityQueueMPHPHState(int numberHiJobs, int servicePhase, int serviceType) {
+		super(3);
         setProperty(0, numberHiJobs);
-        setProperty(0, servicePhase);
+        setProperty(1, servicePhase);
+        setProperty(2, serviceType);
     }
 	
 	
@@ -350,6 +378,11 @@ class PriorityQueueMPHPHState extends PropertiesState {
 	public int getServicePhase() {
         return this.prop[1];
     }
+	
+	public int getServiceType() {
+        return this.prop[2];
+    }
+	
 	
 }
 
