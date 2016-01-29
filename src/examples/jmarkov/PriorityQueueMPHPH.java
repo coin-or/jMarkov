@@ -84,19 +84,27 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
 	        		result = true;
             	break;
 	        case SERVICE_END_HI:
-	            result =  (state.getServiceType()==1 && state.getServicePhase() == event.eventPhase); 
+	            result =  (state.getServiceType()==1 && state.getServicePhase() == event.eventPhase);
+	            //check if service completion rate in this phase is non-zero
+	            result = result && servTime_hi.getMat0().get(state.getServicePhase()-1) > 0;
 	            break;
 	        case SERVICE_PHASECHG_HI:
-	            result =  (state.getServiceType()==1 && state.getServicePhase() == event.eventPhase); 
+	            result =  (state.getServiceType()==1 && state.getServicePhase() == event.eventPhase);
+	            // check if phase change probability is non-zero
+	            result = result && servTime_hi.getMat0().get(state.getServicePhase()-1) < servTime_hi.getMatrix().get(state.getServicePhase()-1, event.eventPhase-1);
 	            break;
 			case ARRIVAL_LOW:
 				result = true; 
 				break;
 			case SERVICE_END_LOW:
 				result =  (state.getServiceType()==2 && state.getServicePhase() == event.eventPhase);
+				//check if service completion rate in this phase is non-zero
+				result = result && servTime_low.getMat0().get(state.getServicePhase()-1) > 0;
 				break;
 			case SERVICE_PHASECHG_LOW:
 				result =  (state.getServiceType()==2 && state.getServicePhase() == event.eventPhase);
+				//check if phase change probability is non-zero
+				result = result && servTime_low.getMat0().get(state.getServicePhase()-1) < servTime_low.getMatrix().get(state.getServicePhase()-1, event.eventPhase-1);
 				break;
         }
         return result;
@@ -334,7 +342,7 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
         
         
         model.showGUI();
-        model.setDebugLevel(3);
+        model.setDebugLevel(5);
         model.generate();
         model.printAll();
     }
@@ -457,6 +465,32 @@ class PriorityQueueMPHPHEvent extends Event {
         }
         
         return E;
+    }
+	
+	@Override
+    public String label() {
+        String stg = "";
+        switch (eventType) {
+        case ARRIVAL_HI:
+            stg = "Arrival Hi";
+            break;
+        case SERVICE_END_HI:
+            stg = "Service End Hi (" + eventPhase + ")";
+            break;
+        case SERVICE_PHASECHG_HI:
+            stg = "Service Ph-Ch Hi (" + eventPhase + ")";
+            break;
+        case ARRIVAL_LOW:
+            stg = "Arrival Low";
+            break;
+        case SERVICE_END_LOW:
+            stg = "Service End Low (" + eventPhase + ")";
+            break;
+        case SERVICE_PHASECHG_LOW:
+            stg = "Service Ph-Ch Low (" + eventPhase + ")";
+            break;
+        }
+        return stg;
     }
 	
 }
