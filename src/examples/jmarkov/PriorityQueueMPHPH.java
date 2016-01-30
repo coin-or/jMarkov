@@ -2,6 +2,7 @@ package examples.jmarkov;
 
 import jmarkov.GeomProcess;
 import jmarkov.GeomRelState;
+import jmarkov.MarkovProcess;
 import jmarkov.basic.Event;
 import jmarkov.basic.EventsSet;
 import jmarkov.basic.PropertiesState;
@@ -330,8 +331,8 @@ public class PriorityQueueMPHPH extends GeomProcess<PriorityQueueMPHPHState, Pri
     
     
 	public static void main(String[] a) {
-        double lambda_hi = 1.0;
-        double lambda_low = 0.5;
+        double lambda_hi = 3;
+        double lambda_low = 2.0;
         PhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 5.0, 8.0 },
                 new double[] { 0.5, 0.5 });
         PhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 3.0, 5.0 },
@@ -391,6 +392,20 @@ class PriorityQueueMPHPHState extends PropertiesState {
         return this.prop[2];
     }
 	
+	
+	@Override
+	public void computeMOPs(MarkovProcess mp) {
+		setMOP(mp,"Number High Jobs", getNumberHiJobs());
+		setMOP(mp,"High Jobs Blocking Probability", 
+				getNumberHiJobs() == ((PriorityQueueMPHPH)mp).bufferCapacity ? 1 : 0);
+		setMOP(mp,"Utilization High Jobs ", 
+				getServiceType() == 1 ? 1 : 0);
+		setMOP(mp,"Utilization Low Jobs ", 
+				getServiceType() == 2 ? 1 : 0);
+		setMOP(mp,"Utilization ", 
+				getServiceType() > 0 ? 1 : 0);
+		
+	}
 	
 }
 
