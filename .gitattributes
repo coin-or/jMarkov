@@ -634,6 +634,7 @@ src/examples/jmarkov/PickBlockWide.java -text
 src/examples/jmarkov/PickBlockWideContKPickers_V3.java -text
 src/examples/jmarkov/PickBlockWideSlow.java -text
 src/examples/jmarkov/PriorityQueueMPHPH.java -text
+src/examples/jmarkov/PriorityQueueMPHPHPreempt.java -text
 src/examples/jmarkov/QueueMEk1.java -text
 src/examples/jmarkov/QueueMH2k1.java -text
 src/examples/jmarkov/QueueMM1N.java -text
