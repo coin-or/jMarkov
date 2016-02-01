@@ -339,31 +339,61 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
     
     
 	public static void main(String[] a) {
-        double lambda_hi = 0.25;
-        double lambda_low = 0.25;
-        
-        /*
-        PhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 5.0, 8.0 },
-                new double[] { 0.5, 0.5 });
-        PhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 3.0, 5.0 },
-                new double[] { 0.5, 0.5 });
-        */
-        
-        PhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730},
-                new double[] { 0.788675134594813,   0.211324865405187 });
-        PhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730 },
-                new double[] { 0.788675134594813,   0.211324865405187 });
-        
-        
-        int bufferCapacity = 3; 
-        
-        PriorityQueueMPHPHPreempt model = new PriorityQueueMPHPHPreempt(lambda_hi, lambda_low, servTime_hi, servTime_low, bufferCapacity);
-        
-        
-        model.showGUI();
-        model.setDebugLevel(5);
-        model.generate();
-        model.printAll();
+		double lambda[] = {0.05, 0.25, 0.45};
+		double meanExecs[] = new double[lambda.length];
+		for (int i = 0; i < lambda.length; i++){
+		    /*double lambda_hi = 0.25;
+		    double lambda_low = 0.25;*/
+		    
+		    double lambda_hi = lambda[i];
+		    double lambda_low = lambda[i];
+		    /*
+		    PhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 5.0, 8.0 },
+		            new double[] { 0.5, 0.5 });
+		    PhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 3.0, 5.0 },
+		            new double[] { 0.5, 0.5 });
+		    */
+		    
+		    PhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730},
+		            new double[] { 0.788675134594813,   0.211324865405187 });
+		    PhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730 },
+		            new double[] { 0.788675134594813,   0.211324865405187 });
+		    
+		    
+		    int bufferCapacity = 1000; 
+		    
+		    int reps = 1;
+		    long meanExecTime = 0;
+		    for(int rep = 0; rep < reps; rep++){
+			    PriorityQueueMPHPHPreempt model = new PriorityQueueMPHPHPreempt(lambda_hi, lambda_low, servTime_hi, servTime_low, bufferCapacity);
+			    model.setMaxStates(10000);
+			    
+			    boolean useGUI = false;
+			    if(useGUI){
+			        model.showGUI();
+			        model.setDebugLevel(5);
+			        model.generate();
+			        model.printAll();}
+			    else{
+			    	model.setDebugLevel(0);
+			    	model.generate();
+			    	long startTime = System.currentTimeMillis();
+			    	model.printMOPs();
+			    	long stopTime = System.currentTimeMillis();
+			        long elapsedTime = stopTime - startTime;
+			        System.out.println("\nExecution time: "+elapsedTime+" ms\n");
+			        meanExecTime += elapsedTime;  
+			    }
+		    }
+		    meanExecTime /= reps; 
+		    System.out.println("\nMean execution time (ms): "+meanExecTime+"\n");
+		    System.out.println("\nMean execution time (s): "+(double)meanExecTime/1000+"\n");
+		    meanExecs[i] = (double)meanExecTime/1000; 
+		}
+		
+		for (int i = 0; i < lambda.length; i++){
+			System.out.println("\nMean execution time (s): "+ meanExecs[i] +"\n");
+		}
     }
 
 
@@ -416,10 +446,10 @@ class PriorityQueueMPHPHPreemptState extends PropertiesState {
 		setMOP(mp,"Number High Jobs", getNumberHiJobs());
 		setMOP(mp,"High Jobs Blocking Probability", 
 				getNumberHiJobs() == ((PriorityQueueMPHPHPreempt)mp).bufferCapacity ? 1 : 0);
-		setMOP(mp,"Utilization High Jobs ", 
+		/*setMOP(mp,"Utilization High Jobs ", 
 				getServiceType() == 1 ? 1 : 0);
 		setMOP(mp,"Utilization Low Jobs ", 
-				getServiceType() == 2 ? 1 : 0);
+				getServiceType() == 2 ? 1 : 0);*/
 		setMOP(mp,"Utilization ", 
 				getServiceType() > 0 ? 1 : 0);
 		
