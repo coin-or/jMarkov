@@ -641,6 +641,7 @@ src/examples/jmarkov/QueueMM1N.java -text
 src/examples/jmarkov/QueueMM2dN.java -text
 src/examples/jmarkov/QueueMMKdN.java -text
 src/examples/jmarkov/QueuePhPh2.java -text
+src/examples/jmarkov/W2.txt -text
 src/examples/jmarkov/Web.java -text
 src/examples/jmdp/AccessControl.java -text
 src/examples/jmdp/AccessControlFiniteHor.java -text

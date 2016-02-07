@@ -1,5 +1,13 @@
 package examples.jmarkov;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+import no.uib.cipr.matrix.DenseVector;
+import no.uib.cipr.matrix.Vector;
+
 import jmarkov.GeomProcess;
 import jmarkov.GeomRelState;
 import jmarkov.MarkovProcess;
@@ -7,8 +15,12 @@ import jmarkov.basic.Event;
 import jmarkov.basic.EventsSet;
 import jmarkov.basic.PropertiesState;
 import jmarkov.basic.StatesSet;
+import jphase.ContPhaseVar;
 import jphase.DenseContPhaseVar;
 import jphase.PhaseVar;
+import jphase.fit.EMHyperErlangFit;
+import jphase.fit.MomentsACPH2Fit;
+import jphase.fit.MomentsACPHFit;
 
 import static examples.jmarkov.PriorityQueueMPHPHPreemptEvent.Type.ARRIVAL_HI;
 import static examples.jmarkov.PriorityQueueMPHPHPreemptEvent.Type.SERVICE_END_HI;
@@ -92,7 +104,7 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 	        case SERVICE_PHASECHG_HI:
 	            result =  (state.getServiceType()==1 && state.getServicePhase() == event.eventPhase);
 	            // check if phase change probability is non-zero
-	            result = result && servTime_hi.getMat0().get(state.getServicePhase()-1) < servTime_hi.getMatrix().get(state.getServicePhase()-1, event.eventPhase-1);
+	            result = result && servTime_hi.getMat0().get(state.getServicePhase()-1) < -servTime_hi.getMatrix().get(state.getServicePhase()-1, state.getServicePhase()-1);
 	            break;
 			case ARRIVAL_LOW:
 				result = true; 
@@ -105,7 +117,7 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 			case SERVICE_PHASECHG_LOW:
 				result =  (state.getServiceType()==2 && state.getServicePhase() == event.eventPhase);
 				//check if phase change probability is non-zero
-				result = result && servTime_low.getMat0().get(state.getServicePhase()-1) < servTime_low.getMatrix().get(state.getServicePhase()-1, event.eventPhase-1);
+				result = result && servTime_low.getMat0().get(state.getServicePhase()-1) < -servTime_low.getMatrix().get(state.getServicePhase()-1, state.getServicePhase()-1);
 				break;
         }
         return result;
@@ -339,29 +351,62 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
     
     
 	public static void main(String[] a) {
-		double lambda[] = {0.05, 0.25, 0.45};
-		double meanExecs[] = new double[lambda.length];
-		for (int i = 0; i < lambda.length; i++){
-		    /*double lambda_hi = 0.25;
-		    double lambda_low = 0.25;*/
-		    
+		//double lambda[] = {0.05, 0.25, 0.45};
+		//double lambda[] = {0.2};
+		//double meanExecs[] = new double[lambda.length];
+		//for (int i = 0; i < lambda.length; i++){
+		    double lambda_hi = 0.3;
+		    double lambda_low = 0.1;
+		    /*
 		    double lambda_hi = lambda[i];
 		    double lambda_low = lambda[i];
+		    */
 		    /*
 		    PhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 5.0, 8.0 },
 		            new double[] { 0.5, 0.5 });
 		    PhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 3.0, 5.0 },
 		            new double[] { 0.5, 0.5 });
 		    */
-		    
-		    PhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730},
-		            new double[] { 0.788675134594813,   0.211324865405187 });
-		    PhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730 },
+		    /*
+		    ContPhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730},
 		            new double[] { 0.788675134594813,   0.211324865405187 });
 		    
+		    ContPhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730 },
+		            new double[] { 0.788675134594813,   0.211324865405187 });
+            */
 		    
-		    int bufferCapacity = 1000; 
 		    
+		    double[] data = readTextFile("src/examples/jphase/W2.txt");
+	        EMHyperErlangFit fitter_hi = new EMHyperErlangFit(data); 
+		    ContPhaseVar servTime_hi = fitter_hi.fit(4);
+		    /*
+		    double sumAlpha = 0;
+		    for(int i = 0; i < servTime_hi.getNumPhases(); i++)
+		    	sumAlpha += servTime_hi.getVectorArray()[i];
+		    DenseVector temp = (DenseVector)servTime_hi.getVector();
+		    for(int i = 0; i < servTime_hi.getNumPhases(); i++)
+		    	temp.set(i, temp.get(i)/sumAlpha);
+		    servTime_hi = new DenseContPhaseVar(temp, servTime_hi.getMatrix());*/
+		    
+		    System.out.println("mean hi: "+servTime_hi.expectedValue());
+		    System.out.println("var hi: "+servTime_hi.toString());
+		    
+		    
+		    MomentsACPHFit fitter_low = new MomentsACPHFit(2, 6, 25);
+		    //MomentsACPH2Fit fitter_low = new MomentsACPH2Fit(2, 6, 22);
+			ContPhaseVar servTime_low = fitter_low.fit();
+			System.out.println("mean low: "+servTime_low.expectedValue());
+			System.out.println("var hi: "+servTime_low.toString());
+				
+		    
+		    int bufferCapacity = 20; 
+		    		    
+		    PriorityQueueMPHPHPreempt model = new PriorityQueueMPHPHPreempt(lambda_hi, lambda_low, servTime_hi, servTime_low, bufferCapacity);
+		    model.setDebugLevel(0);
+		    model.generate();
+	    	model.printMOPs();
+	    	
+		    /*
 		    int reps = 1;
 		    long meanExecTime = 0;
 		    for(int rep = 0; rep < reps; rep++){
@@ -388,12 +433,14 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 		    meanExecTime /= reps; 
 		    System.out.println("\nMean execution time (ms): "+meanExecTime+"\n");
 		    System.out.println("\nMean execution time (s): "+(double)meanExecTime/1000+"\n");
-		    meanExecs[i] = (double)meanExecTime/1000; 
-		}
-		
+		    meanExecs[i] = (double)meanExecTime/1000;
+		    */ 
+		//}
+		/*
 		for (int i = 0; i < lambda.length; i++){
 			System.out.println("\nMean execution time (s): "+ meanExecs[i] +"\n");
 		}
+		*/
     }
 
 
@@ -403,6 +450,37 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 		desc = "Service time low:" + this.servTime_low.toString() +"\n";
 		desc = "Service time high:" + this.servTime_hi.toString() +"\n";
 		return desc;
+	}
+	
+	private static double[] readTextFile(String fileName){
+		ArrayList<Double> data = new ArrayList<Double>();
+		
+		try{
+			FileReader archivo = new FileReader(fileName);
+			BufferedReader entrada = new BufferedReader(archivo);
+			String s;
+			StringTokenizer str;
+			System.out.println("Data file found");
+											
+			while (entrada.ready()){ 
+				s=entrada.readLine();
+				str=new StringTokenizer (s);
+				while(str.countTokens() == 0){
+					s=entrada.readLine();
+					str=new StringTokenizer (s);
+				}
+				if (str.countTokens() != 1)throw new Exception ();
+				data.add( new Double(Double.parseDouble(str.nextToken())) );
+			}
+			entrada.close();
+			
+		}catch(Exception e){
+			System.out.println("File could not be read");
+			return null;
+		}
+		double[] datos = new double[data.size()];
+		for(int i = 0; i < data.size();i++)datos[i] = data.get(i).doubleValue();
+		return datos;
 	}
 }
 
