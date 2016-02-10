@@ -210,7 +210,11 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
                 isStable = isStable();
             if (!isStable)
                 return new DenseMatrix(n, n);
+            long startTime = System.currentTimeMillis();
             R = new DenseMatrix(getGeometrixSolver().getRmatrix());
+	    	long stopTime = System.currentTimeMillis();
+	        long elapsedTime = stopTime - startTime;
+	        System.out.println("\nCompute R exec time: "+elapsedTime+" ms\n");
         }
         return R;
     }
