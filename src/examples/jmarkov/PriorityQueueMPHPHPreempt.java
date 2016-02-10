@@ -351,96 +351,116 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
     
     
 	public static void main(String[] a) {
-		//double lambda[] = {0.05, 0.25, 0.45};
-		//double lambda[] = {0.2};
-		//double meanExecs[] = new double[lambda.length];
-		//for (int i = 0; i < lambda.length; i++){
-		    double lambda_hi = 0.3;
-		    double lambda_low = 0.1;
-		    /*
-		    double lambda_hi = lambda[i];
-		    double lambda_low = lambda[i];
-		    */
-		    /*
-		    PhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 5.0, 8.0 },
-		            new double[] { 0.5, 0.5 });
-		    PhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 3.0, 5.0 },
-		            new double[] { 0.5, 0.5 });
-		    */
-		    /*
-		    ContPhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730},
-		            new double[] { 0.788675134594813,   0.211324865405187 });
-		    
-		    ContPhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730 },
-		            new double[] { 0.788675134594813,   0.211324865405187 });
-            */
-		    
-		    
-		    double[] data = readTextFile("src/examples/jphase/W2.txt");
-	        EMHyperErlangFit fitter_hi = new EMHyperErlangFit(data); 
-		    ContPhaseVar servTime_hi = fitter_hi.fit(4);
-		    /*
-		    double sumAlpha = 0;
-		    for(int i = 0; i < servTime_hi.getNumPhases(); i++)
-		    	sumAlpha += servTime_hi.getVectorArray()[i];
-		    DenseVector temp = (DenseVector)servTime_hi.getVector();
-		    for(int i = 0; i < servTime_hi.getNumPhases(); i++)
-		    	temp.set(i, temp.get(i)/sumAlpha);
-		    servTime_hi = new DenseContPhaseVar(temp, servTime_hi.getMatrix());*/
-		    
-		    System.out.println("mean hi: "+servTime_hi.expectedValue());
-		    System.out.println("var hi: "+servTime_hi.toString());
-		    
-		    
-		    MomentsACPHFit fitter_low = new MomentsACPHFit(2, 6, 25);
-		    //MomentsACPH2Fit fitter_low = new MomentsACPH2Fit(2, 6, 22);
-			ContPhaseVar servTime_low = fitter_low.fit();
-			System.out.println("mean low: "+servTime_low.expectedValue());
-			System.out.println("var hi: "+servTime_low.toString());
-				
-		    
-		    int bufferCapacity = 20; 
-		    		    
-		    PriorityQueueMPHPHPreempt model = new PriorityQueueMPHPHPreempt(lambda_hi, lambda_low, servTime_hi, servTime_low, bufferCapacity);
-		    model.setDebugLevel(0);
-		    model.generate();
-	    	model.printMOPs();
-	    	
-		    /*
-		    int reps = 1;
-		    long meanExecTime = 0;
-		    for(int rep = 0; rep < reps; rep++){
-			    PriorityQueueMPHPHPreempt model = new PriorityQueueMPHPHPreempt(lambda_hi, lambda_low, servTime_hi, servTime_low, bufferCapacity);
-			    model.setMaxStates(10000);
+		
+		int version = 1; //1: paper, 2: timing
+		
+		double lambda_hi;
+	    double lambda_low;
+	    ContPhaseVar servTime_hi;
+	    ContPhaseVar servTime_low;
+	    int bufferCapacity;
+	    PriorityQueueMPHPHPreempt model;
+		switch (version){ 
+			case 1:
+				lambda_hi = 0.3;
+			    lambda_low = 0.1;
 			    
-			    boolean useGUI = false;
-			    if(useGUI){
-			        model.showGUI();
-			        model.setDebugLevel(5);
-			        model.generate();
-			        model.printAll();}
-			    else{
-			    	model.setDebugLevel(0);
-			    	model.generate();
-			    	long startTime = System.currentTimeMillis();
-			    	model.printMOPs();
-			    	long stopTime = System.currentTimeMillis();
-			        long elapsedTime = stopTime - startTime;
-			        System.out.println("\nExecution time: "+elapsedTime+" ms\n");
-			        meanExecTime += elapsedTime;  
-			    }
-		    }
-		    meanExecTime /= reps; 
-		    System.out.println("\nMean execution time (ms): "+meanExecTime+"\n");
-		    System.out.println("\nMean execution time (s): "+(double)meanExecTime/1000+"\n");
-		    meanExecs[i] = (double)meanExecTime/1000;
-		    */ 
-		//}
-		/*
-		for (int i = 0; i < lambda.length; i++){
-			System.out.println("\nMean execution time (s): "+ meanExecs[i] +"\n");
+			    double[] data = readTextFile("src/examples/jphase/W2.txt");
+		        EMHyperErlangFit fitter_hi = new EMHyperErlangFit(data); 
+			    servTime_hi = fitter_hi.fit(4);
+			    
+			    System.out.println("mean hi: "+servTime_hi.expectedValue());
+			    System.out.println("var hi: "+servTime_hi.toString());
+			    
+			    
+			    MomentsACPHFit fitter_low = new MomentsACPHFit(2, 6, 25);
+			    //MomentsACPH2Fit fitter_low = new MomentsACPH2Fit(2, 6, 22);
+				servTime_low = fitter_low.fit();
+				System.out.println("mean low: "+servTime_low.expectedValue());
+				System.out.println("var hi: "+servTime_low.toString());
+					
+			    bufferCapacity = 20;
+			    
+			    model = new PriorityQueueMPHPHPreempt(lambda_hi, lambda_low, servTime_hi, servTime_low, bufferCapacity);
+			    model.setDebugLevel(0);
+			    model.generate();
+		    	model.printMOPs();
+			    break;
+			case 2:
+				//double lambda[] = {0.05, 0.25, 0.45};
+				double lambda[] = {0.05};
+				double meanExecs[] = new double[lambda.length];
+				for (int i = 0; i < lambda.length; i++){
+				    
+				    
+				    lambda_hi = lambda[i];
+				    lambda_low = lambda[i];
+				    
+				    /*
+				    PhaseVar servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 5.0, 8.0 },
+				            new double[] { 0.5, 0.5 });
+				    PhaseVar servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 3.0, 5.0 },
+				            new double[] { 0.5, 0.5 });
+				    */
+				    
+				    servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730},
+				            new double[] { 0.788675134594813,   0.211324865405187 });
+				    
+				    servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730 },
+				            new double[] { 0.788675134594813,   0.211324865405187 });
+		            
+				    
+				    
+				    double sumAlpha = 0;
+				    for(int j = 0; j < servTime_hi.getNumPhases(); j++)
+				    	sumAlpha += servTime_hi.getVectorArray()[j];
+				    DenseVector temp = (DenseVector)servTime_hi.getVector();
+				    for(int j = 0; j < servTime_hi.getNumPhases(); j++)
+				    	temp.set(j, temp.get(j)/sumAlpha);
+				    servTime_hi = new DenseContPhaseVar(temp, servTime_hi.getMatrix());
+				    
+				    bufferCapacity = 20;
+				    
+				    
+				    int reps = 1;
+				    long meanExecTime = 0;
+				    for(int rep = 0; rep < reps; rep++){
+					    model = new PriorityQueueMPHPHPreempt(lambda_hi, lambda_low, servTime_hi, servTime_low, bufferCapacity);
+					    model.setMaxStates(10000);
+					    
+					    boolean useGUI = false;
+					    if(useGUI){
+					        model.showGUI();
+					        model.setDebugLevel(5);
+					        model.generate();
+					        model.printAll();}
+					    else{
+					    	model.setDebugLevel(0);
+					    	model.generate();
+					    	long startTime = System.currentTimeMillis();
+					    	model.printMOPs();
+					    	long stopTime = System.currentTimeMillis();
+					        long elapsedTime = stopTime - startTime;
+					        System.out.println("\nExecution time: "+elapsedTime+" ms\n");
+					        meanExecTime += elapsedTime;  
+					    }
+				    }
+				    meanExecTime /= reps; 
+				    System.out.println("\nMean execution time (ms): "+meanExecTime+"\n");
+				    System.out.println("\nMean execution time (s): "+(double)meanExecTime/1000+"\n");
+				    meanExecs[i] = (double)meanExecTime/1000;
+				     
+				}
+				
+				for (int i = 0; i < lambda.length; i++){
+					System.out.println("\nMean execution time (s): "+ meanExecs[i] +"\n");
+				}
+				
+				break;
+								 
 		}
-		*/
+		
+		
     }
 
 
