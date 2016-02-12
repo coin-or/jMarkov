@@ -9,6 +9,7 @@ import jmarkov.basic.exceptions.NotUnichainException;
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.Matrices;
 import no.uib.cipr.matrix.Matrix;
+import no.uib.cipr.matrix.MatrixEntry;
 
 /**
  * This class implements the Logarithmic reduction algorithm to 
@@ -64,6 +65,15 @@ public class MtjLogRedSolver extends GeometricSolver {
         DenseMatrix UA = new DenseMatrix(dimen, dimen);
         DenseMatrix M = new DenseMatrix(dimen, dimen);
         DenseMatrix TA = new DenseMatrix(dimen, dimen);
+        
+        DenseMatrix one = new DenseMatrix(G.numRows(), 1);
+        
+        for(MatrixEntry e: one){
+        	e.set(1.0);
+        }
+        
+        DenseMatrix check = new DenseMatrix(G.numRows(), 1);
+        
         R = new DenseMatrix(dimen, dimen);
 
         mA1I.mult(MA0, H);// H=(-A_1)^{-1}A_0
@@ -87,7 +97,9 @@ public class MtjLogRedSolver extends GeometricSolver {
             L.multAdd(H, U);// U=HL+LH
             H.mult(H, M);// M=(H)^2
             H = new DenseMatrix(dimen, dimen);
+            //H.zero();
             mA1I = new DenseMatrix(dimen, dimen);
+            //mA1I.zero();
             // U.multAdd(-1, I, I, H);// H=(I-U)
             // TODO: check this!!
             //H = (DenseMatrix) I.copy().add(-1, U);// H=(I-U)
@@ -97,19 +109,36 @@ public class MtjLogRedSolver extends GeometricSolver {
             
             
             startTimeSolve = System.currentTimeMillis();
+            
+            long solveTimeS = System.currentTimeMillis();
             H.solve(I, mA1I);// H1I=(I-U)^{-1}
+            long solveTimeF = System.currentTimeMillis() - solveTimeS;
+            System.out.println("\nSolve time: "+solveTimeF+" ms\n");
+            
             stopTimeSolve = System.currentTimeMillis();
             elapsedTimeSolve += stopTimeSolve - startTimeSolve;
+            //H.zero();
             H = new DenseMatrix(dimen, dimen);
+            
+            
+            solveTimeS = System.currentTimeMillis();
             mA1I.mult(M, H);// H=(I-U)^{-1}*M
+            solveTimeF = System.currentTimeMillis() - solveTimeS;
+            System.out.println("\nMult time: "+solveTimeF+" ms\n");
+            
+            //M.zero();
             M = new DenseMatrix(dimen, dimen);
             L.mult(L, M);// M=(L)^2
+            
+            //L.zero();
             L = new DenseMatrix(dimen, dimen);
             mA1I.mult(M, L);// L=(I-U)^{-1}*M
             T.multAdd(L, G);// G=G+TL
             TA.set(T);
+            //T.zero();
             T = new DenseMatrix(dimen, dimen);
             TA.mult(H, T);// T=TH
+            //U.zero();
             U = new DenseMatrix(dimen, dimen);
 
             
@@ -121,22 +150,14 @@ public class MtjLogRedSolver extends GeometricSolver {
             // ||1-G1||_{\infty}
 	        long startTime2 = System.currentTimeMillis();
 	        
-            double[][] ones = new double[G.numRows()][1];
-            for (int i = 0; i < G.numRows(); i++) {
-                ones[i][0] = 1;
-            }
-            
-            DenseMatrix one = new DenseMatrix(ones);
-
-            DenseMatrix check = new DenseMatrix(G.numRows(), 1);
-
-            G.mult(-1, one, check);
-            check.add(one);
-
-            compare = Math.abs(check.get(0, 0));
+	        check.zero();
+	        G.mult(one, check);
+            //check.add(one);
+	        
+            compare = Math.abs(1 - check.get(0, 0));
 
             for (int i = 1; i < check.numRows(); i++) {
-                compare = Math.max(compare, Math.abs(check.get(i, 0)));
+                compare = Math.max(compare, Math.abs(1 - check.get(i, 0)));
             }
             
             long stopTime2 = System.currentTimeMillis();
@@ -149,11 +170,14 @@ public class MtjLogRedSolver extends GeometricSolver {
 
         long startTimeEnd = System.currentTimeMillis();
         
-        U = new DenseMatrix(dimen, dimen);
+        U.zero();
+        //U = new DenseMatrix(dimen, dimen);
         // MA0.multAdd(G, MA1, U);
         // TODO: check this!!!
         U = (DenseMatrix) MA0.multAdd(G, MA1.copy());
-        mA1I = new DenseMatrix(dimen, dimen);
+        
+        mA1I.zero();
+        //mA1I = new DenseMatrix(dimen, dimen);
         //U.mult(-1, I, UA);// U=A_1+A_0*G
         UA.set(U); // U=A_1+A_0*G
         UA.scale(-1); // U=A_1+A_0*G
