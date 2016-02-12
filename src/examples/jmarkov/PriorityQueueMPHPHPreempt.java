@@ -352,7 +352,7 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
     
 	public static void main(String[] a) {
 		
-		int version = 1; //1: paper, 2: timing
+		int version = 2; //1: paper, 2: timing
 		
 		double lambda_hi;
 	    double lambda_low;
@@ -419,7 +419,7 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 				    	temp.set(j, temp.get(j)/sumAlpha);
 				    servTime_hi = new DenseContPhaseVar(temp, servTime_hi.getMatrix());
 				    
-				    bufferCapacity = 20;
+				    bufferCapacity = 500;
 				    
 				    
 				    int reps = 1;

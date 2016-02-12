@@ -37,6 +37,7 @@ public class MtjLogRedSolver extends GeometricSolver {
         double epsilon = 1e-8;
         Matrix A[] = mp.getAMatrices();
         Matrix MA0 = A[0], MA1 = A[1], MA2 = A[2];
+        
 
         int dimen = MA1.numRows();
 
@@ -44,6 +45,9 @@ public class MtjLogRedSolver extends GeometricSolver {
 
         DenseMatrix mA1 = new DenseMatrix(dimen, dimen);
         DenseMatrix mA1I = new DenseMatrix(dimen, dimen);
+        DenseMatrix H = new DenseMatrix(dimen, dimen);
+        DenseMatrix L = new DenseMatrix(dimen, dimen);
+        
         
         long startTimeS0 = System.currentTimeMillis();
         //MA1.mult(-1, I, mA1);
@@ -51,14 +55,16 @@ public class MtjLogRedSolver extends GeometricSolver {
         mA1.scale(-1);
         long startTimeSolve = System.currentTimeMillis();
         mA1.solve(I, mA1I);
+        
+        mA1.solve(MA0, H);
+        mA1.solve(MA2, L);
+        
         long stopTimeS0 = System.currentTimeMillis();
         long elapsedTimeS0 = stopTimeS0 - startTimeS0;
         long elapsedTimeSolve = stopTimeS0 - startTimeSolve;
-        System.out.println("\nTime init mult and solve: "+elapsedTimeS0+" ms\n");
+        System.out.println("Time init mult and solve: "+elapsedTimeS0+" ms");
         
         
-        DenseMatrix H = new DenseMatrix(dimen, dimen);
-        DenseMatrix L = new DenseMatrix(dimen, dimen);
         DenseMatrix G = new DenseMatrix(dimen, dimen);
         DenseMatrix T = new DenseMatrix(dimen, dimen);
         DenseMatrix U = new DenseMatrix(dimen, dimen);
@@ -68,24 +74,54 @@ public class MtjLogRedSolver extends GeometricSolver {
         
         DenseMatrix one = new DenseMatrix(G.numRows(), 1);
         
+        long startTimeE = System.currentTimeMillis();
         for(MatrixEntry e: one){
         	e.set(1.0);
         }
+        long stopTimeE = System.currentTimeMillis();
+        long elapsedTimeE = stopTimeE - startTimeE;
+        System.out.println("Time creating unit vector e: "+elapsedTimeE+" ms");
         
         DenseMatrix check = new DenseMatrix(G.numRows(), 1);
         
         R = new DenseMatrix(dimen, dimen);
-
+        
+        /*
+        long startTimeInitMult = System.currentTimeMillis();
         mA1I.mult(MA0, H);// H=(-A_1)^{-1}A_0
-
         mA1I.mult(MA2, L);// L=(-A_1)^{-1}A_2
+        long stopTimeInitMult = System.currentTimeMillis();
+        long elapsedTimeInitMult = stopTimeInitMult - startTimeInitMult;
+        System.out.println("\nTime initial mults: "+elapsedTimeInitMult+" ms\n");
+        */
+        
+        /*
+        long startTimeLHinit = System.currentTimeMillis();
+        DenseMatrix LHtemp = new DenseMatrix(dimen, dimen);
+        DenseMatrix H2 = new DenseMatrix(dimen, dimen);
+        DenseMatrix L2 = new DenseMatrix(dimen, dimen);
+        
+        LHtemp.set(MA1);
+        LHtemp.scale(-1);
+        LHtemp.solve(MA0, H2);
+        //L2.set(MA1);
+        //L2.scale(-1);
+        LHtemp.solve(MA2, L2);
+        long stopTimeLHinit = System.currentTimeMillis();
+        long elapsedTimeLHinit = stopTimeLHinit - startTimeLHinit;
+        System.out.println("\nTime NEW initial mults: "+elapsedTimeLHinit+" ms\n");
+        double err = (H2.add(-1, H)).norm(Matrix.Norm.Maxvalue);
+        System.out.println("\nerror new H: "+err+"\n");
+        err = (L2.add(-1, L)).norm(Matrix.Norm.Maxvalue);
+        System.out.println("\nerror new L: "+err+"\n");*/
+        
         G.set(L);
         T.set(H);
         double compare = 1;
         long stopTimeSolve = 0;
         long stopTimeInit = System.currentTimeMillis();
         long elapsedTimeInit = stopTimeInit - startTimeR;
-        System.out.println("\nTime comp R initial section: "+elapsedTimeInit+" ms\n");
+        System.out.println("Time comp R initial section: "+elapsedTimeInit+" ms");
         long elapsedTime = 0;
         long elapsedTime2 = 0;
         while (compare > epsilon) {
@@ -113,7 +149,7 @@ public class MtjLogRedSolver extends GeometricSolver {
             long solveTimeS = System.currentTimeMillis();
             H.solve(I, mA1I);// H1I=(I-U)^{-1}
             long solveTimeF = System.currentTimeMillis() - solveTimeS;
-            System.out.println("\nSolve time: "+solveTimeF+" ms\n");
+            System.out.println("Solve time: "+solveTimeF+" ms");
             
             stopTimeSolve = System.currentTimeMillis();
             elapsedTimeSolve += stopTimeSolve - startTimeSolve;
@@ -124,7 +160,7 @@ public class MtjLogRedSolver extends GeometricSolver {
             solveTimeS = System.currentTimeMillis();
             mA1I.mult(M, H);// H=(I-U)^{-1}*M
             solveTimeF = System.currentTimeMillis() - solveTimeS;
-            System.out.println("\nMult time: "+solveTimeF+" ms\n");
+            System.out.println("Mult time: "+solveTimeF+" ms");
             
             //M.zero();
             M = new DenseMatrix(dimen, dimen);
@@ -165,8 +201,8 @@ public class MtjLogRedSolver extends GeometricSolver {
 
         }
         
-        System.out.println("\nTime matrix multplications: "+elapsedTime+" ms\n");
-        System.out.println("\nTime norm computation: "+elapsedTime2+" ms\n");
+        System.out.println("Time matrix multplications: "+elapsedTime+" ms");
+        System.out.println("Time norm computation: "+elapsedTime2+" ms");
 
         long startTimeEnd = System.currentTimeMillis();
         
@@ -174,28 +210,52 @@ public class MtjLogRedSolver extends GeometricSolver {
         //U = new DenseMatrix(dimen, dimen);
         // MA0.multAdd(G, MA1, U);
         // TODO: check this!!!
-        U = (DenseMatrix) MA0.multAdd(G, MA1.copy());
+        //U = (DenseMatrix) MA0.multAdd(G, MA1.copy());
         
+        U.set(MA0);
+        U.multAdd(G, MA1.copy());
+        
+        
+        /*        
         mA1I.zero();
         //mA1I = new DenseMatrix(dimen, dimen);
         //U.mult(-1, I, UA);// U=A_1+A_0*G
         UA.set(U); // U=A_1+A_0*G
+
         UA.scale(-1); // U=A_1+A_0*G
         startTimeSolve = System.currentTimeMillis();
         UA.solve(I, mA1I);// (I-U)^{-1}
         stopTimeSolve = System.currentTimeMillis();
         elapsedTimeSolve += stopTimeSolve - startTimeSolve;
-        System.out.println("\nTime comp R solve: "+elapsedTimeSolve+" ms\n");
+        System.out.println("Time comp R solve: "+elapsedTimeSolve+" ms");
         MA0.mult(mA1I, R);// R=A_0*H1I.
+        
+                */
+        
+        /*long startTimeR2 = System.currentTimeMillis();
+        DenseMatrix R2 = new DenseMatrix(dimen, dimen);*/
+        //U.transpose();
+        U.scale(-1);
+        U.transSolve(MA0.transpose(), R);
+        R.transpose(); 
+        /*
+        long stopTimeR2 = System.currentTimeMillis();
+        long elapsedTimeR2 = stopTimeR2 - startTimeR2;
+        System.out.println("\nTime NEW final section: "+elapsedTimeR2+" ms\n");
+        double err = (R2.add(-1, R)).norm(Matrix.Norm.Maxvalue);
+        System.out.println("\nerror new R: "+err+"\n");*/
         
         long stopTimeEnd = System.currentTimeMillis();
         long elapsedTimeEnd = stopTimeEnd - startTimeEnd;
-        System.out.println("\nTime comp R final section: "+elapsedTimeEnd+" ms\n");
+        System.out.println("Time comp R final section: "+elapsedTimeEnd+" ms");
 
         
         long stopTimeR = System.currentTimeMillis();
         long elapsedTimeR = stopTimeR - startTimeR;
-        System.out.println("\nTime comp R inside solver: "+elapsedTimeR+" ms\n");
+        System.out.println("Time comp R inside solver: "+elapsedTimeR+" ms");
+
+        
+        
 
         return Matrices.getArray(R);
     }
