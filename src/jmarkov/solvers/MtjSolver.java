@@ -171,7 +171,14 @@ public class MtjSolver extends SteadyStateSolver {
             return genMatrix;
         mp.debug(1, "Building MTJ Generator Matrix ...");
         //TODO: se pordrá hacer mejor???
+        
+        long startTimeGetRates = System.currentTimeMillis();
         Matrix R = new FlexCompRowMatrix(mp.getMtjRates());
+        long stopTimeGetRates = System.currentTimeMillis();
+        long elapsedTimeGetRates = stopTimeGetRates - startTimeGetRates;
+        System.out.println("getGenerator - getMtjRates: "+elapsedTimeGetRates+" ms");
+        
+        long startTimeQ = System.currentTimeMillis();
         int n = R.numRows();
         double sum[] = new double[n];
         Matrix Q = R.copy();
@@ -188,6 +195,10 @@ public class MtjSolver extends SteadyStateSolver {
             Q.set(i, i, -sum[i]);
             maxLambda = Math.max(sum[i], maxLambda);
         }
+        long stopTimeQ = System.currentTimeMillis();
+        long elapsedTimeQ = stopTimeQ - startTimeQ;
+        System.out.println("getGenerator - Q from R: "+elapsedTimeQ+" ms");
+        
         mp.debug(3, "The Generator matrix is: \n" + Q);
         return (genMatrix = Q);
     }
