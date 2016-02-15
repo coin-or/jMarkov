@@ -284,18 +284,25 @@ public class MtjLogRedSolver extends GeometricSolver {
         // TODO: check this!!!
         //U = (DenseMatrix) MA0.multAdd(G, MA1.copy());
         
-        U.set(MA0);
+        /*U.set(MA0);
         //TODO: Ask Juan what is the next line doing
-        U.multAdd(G, MA1.copy()); // U = A0 * G + A1
+        U.multAdd(G, MA1.copy()); // U = A0 * G + A1*/
         
-        DenseMatrix U2 = new DenseMatrix(dimen, dimen);
+        /*DenseMatrix U2 = new DenseMatrix(dimen, dimen);
         DenseMatrix R2 = new DenseMatrix(dimen, dimen);
-        U2.set(MA1);
+        DenseMatrix Rtemp = new DenseMatrix(dimen, dimen);
+        U2.set(MA1); // U = A0 * G + A1
         MA0.multAdd(G, U2);
         U2.scale(-1);
         U2.transSolve(MA0.transpose(), R2);
         R2.transpose(); 
+        Rtemp.set(R2);*/
         
+        U.set(MA1); // U = A0 * G + A1
+        MA0.multAdd(G, U);
+        U.scale(-1);
+        U.transSolve(MA0.transpose(), R);
+        R.transpose(); 
         
         /*        
         mA1I.zero();
@@ -316,9 +323,10 @@ public class MtjLogRedSolver extends GeometricSolver {
         /*long startTimeR2 = System.currentTimeMillis();
         DenseMatrix R2 = new DenseMatrix(dimen, dimen);*/
         //U.transpose();
+        /*
         U.scale(-1);
         U.transSolve(MA0.transpose(), R);
-        R.transpose(); 
+        R.transpose(); */
         /*
         long stopTimeR2 = System.currentTimeMillis();
         long elapsedTimeR2 = stopTimeR2 - startTimeR2;
@@ -326,8 +334,9 @@ public class MtjLogRedSolver extends GeometricSolver {
         double err = (R2.add(-1, R)).norm(Matrix.Norm.Maxvalue);
         System.out.println("\nerror new R: "+err+"\n");*/
         
-        double err = (R2.add(-1, R)).norm(Matrix.Norm.Maxvalue);
-        System.out.println("\nerror new R: "+err+"\n");
+        /*
+        double err = (Rtemp.add(-1, R)).norm(Matrix.Norm.Maxvalue);
+        System.out.println("\nerror new R: "+err+"\n");*/
         
         
         long stopTimeEnd = System.currentTimeMillis();
@@ -344,7 +353,6 @@ public class MtjLogRedSolver extends GeometricSolver {
         System.out.println("\nerror new R: "+err+"\n");
         */
         
-        //R.set(R2);
         
 
         return Matrices.getArray(R);
