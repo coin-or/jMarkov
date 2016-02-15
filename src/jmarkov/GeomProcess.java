@@ -18,6 +18,7 @@ import no.uib.cipr.matrix.Matrices;
 import no.uib.cipr.matrix.Matrix;
 import no.uib.cipr.matrix.MatrixEntry;
 import no.uib.cipr.matrix.Vector;
+import no.uib.cipr.matrix.VectorEntry;
 import no.uib.cipr.matrix.sparse.FlexCompRowMatrix;
 
 /**
@@ -350,45 +351,89 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
 	        long elapsedTimeR = stopTimeR - startTimeR;
 	        System.out.println("Compute R exec time (from getInitialSol() ): "+elapsedTimeR+" ms");
 	        
+	        long startTimePi0 = System.currentTimeMillis();
+            /*
             
-            long startTimePi0 = System.currentTimeMillis();
-
             Matrix I = new DenseMatrix(Matrices.identity(R.numRows()));
             Matrix e = new DenseMatrix(R.numRows(), 1);
-
+            DenseVector e2 = new DenseVector(R.numRows());
+            DenseVector eTemp = new DenseVector(R.numRows());
+            
             for (int i = 0; i < e.numRows(); i++) {
                 e.set(i, 0, 1);
+                e2.set(i, 1);
             }
 
+            long startTime = System.currentTimeMillis();
             Matrix inversa = new DenseMatrix(R.numRows(), R.numColumns());
-
             I.add(-1, R);
             I.solve(Matrices.identity(R.numRows()), inversa);
             I = new DenseMatrix(R.numRows(), 1);
             inversa.mult(e, I);
+            long stopTime = System.currentTimeMillis();
+	        long elapsedTime = stopTime - startTime;
+	        System.out.println("\nTime pi solve I-R: "+elapsedTime+" ms\n");
 
             for (int i = 0; i < B10.numRows(); i++) {
                 B10.set(i, 0, I.get(i, 0));
+                eTemp.set(i, I.get(i, 0));
             }
+            */
+            
+            long startTime2 = System.currentTimeMillis();
+	        DenseVector e = new DenseVector(R.numRows());
+            
+            //for (int i = 0; i < e.numRows(); i++) {
+	        for (VectorEntry i : e){
+	        	i.set(1);
+            }
+            Matrix I = Matrices.identity(R.numRows());
+            I.add(-1, R);
+            DenseVector x = new DenseVector(R.numRows());
+            I.solve(e, x);
+            
+            long stopTime2 = System.currentTimeMillis();
+	        long elapsedTime2 = stopTime2 - startTime2;
+	        System.out.println("Time NEW pi solve I-R: "+elapsedTime2+" ms");
+	        /*
+	        double err = (eTemp.add(-1, x)).norm(Vector.Norm.Infinity);
+	        System.out.println("\nerror new I-R inv: "+err+"\n");*/
+	        
+            
 
             int columDimension = B00.numColumns() + B01.numColumns();
             int rowDimension = B00.numRows() + B10.numRows();
             // DenseMatrix M22 = new DenseMatrix(A1.numRows(),
             // A1.numColumns());
             // R.multAdd(A2, A1, M22);
-            Matrix M22 = R.multAdd(A2, A1);
-
+            long startTime3 = System.currentTimeMillis();
+            //Matrix M22 = R.multAdd(A2, A1);
+            R.multAdd(A2, A1);
+            long stopTime3 = System.currentTimeMillis();
+            long elapsedTime3 = stopTime3 - startTime3;
+	        System.out.println("Time pi multAdd: "+elapsedTime3+" ms");
+	        
             DenseVector Pis = new DenseVector(rowDimension);
             DenseVector zeros = new DenseVector(columDimension);
             zeros.zero();
             zeros.set(0, 1);
 
-            DenseMatrix MTotal = assmbleMatrix(B00, B01, B10, M22);
-
+            startTime3 = System.currentTimeMillis();
+            //DenseMatrix MTotal = assmbleMatrix(B00, B01, B10, M22);
+            DenseMatrix MTotal = assmbleMatrix(B00, B01, B10, A1);
+            stopTime3 = System.currentTimeMillis();
+            elapsedTime3 = stopTime3 - startTime3;
+	        System.out.println("Time pi assemble: "+elapsedTime3+" ms");
+	        
+            startTime3 = System.currentTimeMillis();
             MTotal.transSolve(zeros, Pis);
+            stopTime3 = System.currentTimeMillis();
+	        elapsedTime3 = stopTime3 - startTime3;
+	        System.out.println("Time pi solve pi0: "+elapsedTime3+" ms");
+	        
             long stopTimePi0 = System.currentTimeMillis();
 	        long elapsedTimePi0 = stopTimePi0 - startTimePi0;
-	        System.out.println("\nCompute Pi0 exec time: "+elapsedTimePi0+" ms\n");
+	        System.out.println("Compute Pi0 exec time: "+elapsedTimePi0+" ms");
             pis = Pis.getData();
         }
         return pis;
