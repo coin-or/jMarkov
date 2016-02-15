@@ -197,11 +197,16 @@ public class MtjLogRedSolver extends GeometricSolver {
 	        elapsedTimeAdd += stopTimeAdd - startTimeAdd;
 	        
 	        startTimeSolve = System.currentTimeMillis();
+	        
 	        DenseLU ULU = DenseLU.factorize(U);
 	        ULU.solve(H);
-	        //H.set(M);
-	        //DenseMatrix H = new DenseMatrix(dimen, dimen); 
-	        //U.solve(M, H);
+	        
+	        /*
+	        H.set(M);
+	        DenseMatrix H = new DenseMatrix(dimen, dimen); 
+	        U.solve(M, H);*/
+	        
+	        
 	        //DenseMatrix L2 = new DenseMatrix(dimen, dimen);
 	        stopTimeSolve = System.currentTimeMillis();
 	        elapsedTimeSolve += stopTimeSolve - startTimeSolve;
@@ -281,7 +286,15 @@ public class MtjLogRedSolver extends GeometricSolver {
         
         U.set(MA0);
         //TODO: Ask Juan what is the next line doing
-        U.multAdd(G, MA1.copy());
+        U.multAdd(G, MA1.copy()); // U = A0 * G + A1
+        
+        DenseMatrix U2 = new DenseMatrix(dimen, dimen);
+        DenseMatrix R2 = new DenseMatrix(dimen, dimen);
+        U2.set(MA1);
+        MA0.multAdd(G, U2);
+        U2.scale(-1);
+        U2.transSolve(MA0.transpose(), R2);
+        R2.transpose(); 
         
         
         /*        
@@ -313,6 +326,10 @@ public class MtjLogRedSolver extends GeometricSolver {
         double err = (R2.add(-1, R)).norm(Matrix.Norm.Maxvalue);
         System.out.println("\nerror new R: "+err+"\n");*/
         
+        double err = (R2.add(-1, R)).norm(Matrix.Norm.Maxvalue);
+        System.out.println("\nerror new R: "+err+"\n");
+        
+        
         long stopTimeEnd = System.currentTimeMillis();
         long elapsedTimeEnd = stopTimeEnd - startTimeEnd;
         System.out.println("Time comp R final section: "+elapsedTimeEnd+" ms");
@@ -327,6 +344,7 @@ public class MtjLogRedSolver extends GeometricSolver {
         System.out.println("\nerror new R: "+err+"\n");
         */
         
+        //R.set(R2);
         
 
         return Matrices.getArray(R);
