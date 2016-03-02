@@ -352,7 +352,7 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
     
 	public static void main(String[] a) {
 		
-		int version = 2; //1: paper, 2: timing
+		int version = 1; //1: paper, 2: timing
 		
 		double lambda_hi;
 	    double lambda_low;
@@ -362,8 +362,9 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 	    PriorityQueueMPHPHPreempt model;
 		switch (version){ 
 			case 1:
-				lambda_hi = 0.3;
-			    lambda_low = 0.1;
+				// parameters used in the example in the paper
+				lambda_hi = 0.2;
+			    lambda_low = 0.2;
 			    
 			    double[] data = readTextFile("src/examples/jphase/W2.txt");
 		        EMHyperErlangFit fitter_hi = new EMHyperErlangFit(data); 
@@ -379,16 +380,18 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 				System.out.println("mean low: "+servTime_low.expectedValue());
 				System.out.println("var hi: "+servTime_low.toString());
 					
-			    bufferCapacity = 20;
+			    bufferCapacity = 10;
 			    
 			    model = new PriorityQueueMPHPHPreempt(lambda_hi, lambda_low, servTime_hi, servTime_low, bufferCapacity);
+			    model.setMaxStates(10000);
 			    model.setDebugLevel(0);
 			    model.generate();
 		    	model.printMOPs();
 			    break;
 			case 2:
+				// parameters used for testing, especially for scalability and vs matlab
 				//double lambda[] = {0.05, 0.25, 0.45};
-				double lambda[] = {0.05};
+				double lambda[] = {0.25};
 				double meanExecs[] = new double[lambda.length];
 				for (int i = 0; i < lambda.length; i++){
 				    
@@ -419,7 +422,7 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 				    	temp.set(j, temp.get(j)/sumAlpha);
 				    servTime_hi = new DenseContPhaseVar(temp, servTime_hi.getMatrix());
 				    
-				    bufferCapacity = 300;
+				    bufferCapacity = 10;
 				    
 				    
 				    int reps = 1;
