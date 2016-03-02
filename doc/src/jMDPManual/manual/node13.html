@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 3.0//EN">
+<!--Converted with LaTeX2HTML 96.1 (Feb 5, 1996) by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds -->
+<HTML>
+<HEAD>
+<TITLE>Code</TITLE>
+<META NAME="description" CONTENT="Code">
+<META NAME="keywords" CONTENT="manual">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<LINK REL=STYLESHEET HREF="manual.css">
+</HEAD>
+<BODY LANG="EN">
+ <A NAME="tex2html158" HREF="node14.html"><IMG WIDTH=37 HEIGHT=24 ALIGN=BOTTOM ALT="next" SRC="http://akula.isye.gatech.edu/images/next_motif.gif"></A> <A NAME="tex2html156" HREF="node11.html"><IMG WIDTH=26 HEIGHT=24 ALIGN=BOTTOM ALT="up" SRC="http://akula.isye.gatech.edu/images/up_motif.gif"></A> <A NAME="tex2html150" HREF="node12.html"><IMG WIDTH=63 HEIGHT=24 ALIGN=BOTTOM ALT="previous" SRC="http://akula.isye.gatech.edu/images/previous_motif.gif"></A>   <BR>
+<B> Next:</B> <A NAME="tex2html159" HREF="node14.html">Results</A>
+<B>Up:</B> <A NAME="tex2html157" HREF="node11.html">Example2: An Stochastic Inventory </A>
+<B> Previous:</B> <A NAME="tex2html151" HREF="node12.html">Problem Statement</A>
+<BR> <P>
+<H3><A NAME="SECTION00042200000000000000">Code</A></H3>
+<P>
+To code the problem we implemet Action to be the amount ordered, and State to be current inventory level.
+<P>
+Since the set of actions that can be taken is different for every state, we implement the method getStates(State p) to return only a partial enumeration of the whole set of states. This enumeration is acomplished through the class Orders which is an implementation of DPSEnumeration.
+<P>
+<PRE> import DPS.*;
+import java.util.*;
+
+/*
+ *
+ * Inventory1
+ *
+ */
+public class Inventory1 extends MDP
+{
+	  int M = 3;// Capacity
+	  static int N = 3;// Horizon 
+	  int K = 4;// Fixed cost per Order 
+	  double pr[] = {0.25, 0.5, 0.25,0}; // Demand probability function
+	  double qr[] = {1.0 , 0.75, 0.25,0}; // q(i) = P{Demand &gt;= i}
+	  double F[] = {0,6,8,8};
+	  Action[] actions;
+
+double c(int x){return 2*x;};  //variable cost
+double g(int x){return 0.0;};  // Value of terminal Inventory
+double h(int x){return x;};	  // holding cost
+double O(int x){return (x&gt;0)? K + c(x): 0.0;};	//Order cost
+
+// Constructor
+
+Inventory1(States sts,int horizon){
+	super (sts, horizon);
+}
+
+public double prob(State p2, State p1, Action q,int stage){
+	int j = ((InvLevel)p2).level;
+	int s = ((InvLevel)p1).level;
+	int a = ((Order)q).size;
+
+	if ((0&lt;j)&amp;&amp;(j&lt;=s+a)&amp;&amp;(s+a&lt;=M))
+		return pr[s+a-j];
+	if ((s+a&lt;=M)&amp;&amp;(j==0))
+		return qr[s+a];
+	return 0.0;
+}
+
+public double immediateReward(State p,Action q,int stage){
+	int s = ((InvLevel)p).level;
+	int a = ((Order)q).size;
+	return F[s+a] - O(a) - h(s+a);
+}
+
+public double finalReward(State p){
+	return g(((InvLevel)p).level);
+}
+
+void init(){
+	Order acts[] = new Order[M+1];
+	InvLevel ssts[] = new InvLevel[M+1];
+	for (int k=0;k&lt;=M;k++){
+		acts[k] = new Order(k); 
+		ssts[k] = new InvLevel(k);
+	}
+	states = new States(ssts);
+	actions = acts;
+}
+
+public Actions getActions (State p, int stage){
+	return new Actions(new Orders(actions, M - ((InvLevel)p).level));
+}
+
+	
+
+public static void main(String a[]){
+	Inventory1 pro = new Inventory1(null,N);
+	pro.init();
+	pro.solve();
+	System.out.println(pro.getPolicies());
+}
+
+
+}
+
+
+
+/*
+* Class InvLevel: Inventory Level
+*/ 
+
+class InvLevel extends State{
+	int level;
+	
+	InvLevel(int k){
+		super(&quot;Level &quot;+k);
+		level = k;
+	}
+}	
+
+/*
+* Class Order
+*/
+class Order extends Action{
+	int size;
+
+	Order(int k){
+		super(&quot;Order &quot;+k+&quot; Units&quot;);
+		size = k;
+	}
+
+}
+/*
+* Class Orders: set of possible Actions
+*/
+class Orders implements DPSEnumeration{
+	int max,current;
+	Action[] actions;
+
+	Orders(Action[] acts, int max){
+		this.max = max;
+		actions = acts;
+		current = 0;
+	}
+
+	public boolean hasMoreElements(){
+		return (current&lt;=max);
+	}
+
+	public Object nextElement(){
+		Action a = actions[current];
+		current++;
+		return (Object)a;
+	}
+
+	public void init(){
+		current = 0;
+	}
+}</PRE>
+<P>
+<BR> <HR>
+<P><ADDRESS>
+<I> <BR>
+Tue May 13 01:08:37 EDT 1997</I>
+</ADDRESS>
+</BODY>
+</HTML>

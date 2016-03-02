@@ -1,0 +1,60 @@
+\batchmode
+\documentclass[11pt]{article}
+\makeatletter
+\usepackage{amsmath}
+
+
+
+
+\newcommand {\opti}{opt}
+
+\newcommand {\cQ}{ {\cal Q}(p_k,k)}
+
+\newcommand {\cP}{ {\cal P}_k}
+
+\newcommand {\opt}[1]{\opti_{#1}}
+
+\newcommand {\op}{\oplus}
+
+\makeatother
+\newenvironment{tex2html_wrap}{}{}
+\newwrite\lthtmlwrite
+\def\lthtmltypeout#1{{\let\protect\string\immediate\write\lthtmlwrite{#1}}}%
+\newbox\sizebox
+\begin{document}
+\pagestyle{empty}
+\stepcounter{section}
+\stepcounter{subsection}
+{\newpage
+\clearpage
+\samepage \setbox\sizebox=\hbox{${\cal Q}(p_k,k)$}\lthtmltypeout{latex2htmlSize :tex2html_wrap_inline115: \the\ht\sizebox::\the\dp\sizebox.}\box\sizebox
+}
+
+\stepcounter{subsection}
+{\newpage
+\clearpage
+\samepage \begin{gather}f_{k} = \opti_{q_k} \left[ g_k(p_k,q_k) \oplus \sum_{p'} f_{k+1}(p') P(p'|p,q)     
+\right], \end{gather}
+}
+
+{\newpage
+\clearpage
+\samepage \begin{gather}f_N(p) = h (p) \qquad \text{(A known function)}
+\end{gather}
+}
+
+\stepcounter{section}
+\stepcounter{section}
+\stepcounter{section}
+\stepcounter{subsection}
+\stepcounter{subsubsection}
+\stepcounter{subsubsection}
+\stepcounter{subsubsection}
+\stepcounter{subsection}
+\stepcounter{subsubsection}
+\stepcounter{subsubsection}
+\stepcounter{subsubsection}
+\stepcounter{section}
+\stepcounter{section}
+
+\end{document}

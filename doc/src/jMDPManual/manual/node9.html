@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 3.0//EN">
+<!--Converted with LaTeX2HTML 96.1 (Feb 5, 1996) by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds -->
+<HTML>
+<HEAD>
+<TITLE>Problem Code</TITLE>
+<META NAME="description" CONTENT="Problem Code">
+<META NAME="keywords" CONTENT="manual">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<LINK REL=STYLESHEET HREF="manual.css">
+</HEAD>
+<BODY LANG="EN">
+ <A NAME="tex2html119" HREF="node10.html"><IMG WIDTH=37 HEIGHT=24 ALIGN=BOTTOM ALT="next" SRC="http://akula.isye.gatech.edu/images/next_motif.gif"></A> <A NAME="tex2html117" HREF="node7.html"><IMG WIDTH=26 HEIGHT=24 ALIGN=BOTTOM ALT="up" SRC="http://akula.isye.gatech.edu/images/up_motif.gif"></A> <A NAME="tex2html111" HREF="node8.html"><IMG WIDTH=63 HEIGHT=24 ALIGN=BOTTOM ALT="previous" SRC="http://akula.isye.gatech.edu/images/previous_motif.gif"></A>   <BR>
+<B> Next:</B> <A NAME="tex2html120" HREF="node10.html">Results</A>
+<B>Up:</B> <A NAME="tex2html118" HREF="node7.html">Example1: The cow herd</A>
+<B> Previous:</B> <A NAME="tex2html112" HREF="node8.html">Problem Statement</A>
+<BR> <P>
+<H3><A NAME="SECTION00041200000000000000">Problem Code</A></H3>
+<P>
+This is the code that models all the stated information. Note how simple 
+the procedure main is, which is were the user actually asks the problem 
+to be solved.
+<P>
+<PRE>
+import DP.*;
+
+/*
+ *
+ * MyProblem.java
+ *
+ */
+class MyProblem extends DPProblem
+{
+
+	  Action keep = new Action(&quot;Keep&quot;),
+			 sell = new Action(&quot;Sell&quot;),
+			 acts[] = {keep,sell};
+	  static double  price[] = {0,10,15,25,7,10};
+	  static int  mxCows[] = {50,75,112,168,252,378};
+	  States states;
+
+	  Actions actions = new Actions(acts);
+
+	  MyProblem(States sts, int horizon){
+		  super(sts,horizon);
+		  states = sts;
+	  }
+
+	  public static States initStates(){
+		  int maxCows = mxCows[5];
+		  State vec[] = new State[maxCows+1];
+		  for (int i=0; i&lt;=maxCows; i++){
+			  vec[i] = (State)(new MyState(i));
+		  }
+		  return new States(vec);
+	  }
+
+
+	  public States getStates(int stage){
+		  int maxCows = mxCows[stage];
+		  State vec[] = new State[maxCows+1];
+		  for (int i=0; i&lt;=maxCows; i++){
+			  vec[i] = states.state(i);
+		  }
+		  return new States(vec);
+	  }
+
+	  public double immediateReward(State p, Action q, int stage){
+		  if (q == sell)
+			  return (((MyState)p).cows * price[stage]);
+		  else return 0.0;
+	  }
+
+	  public double finalReward(State p){
+		  return (((MyState)p).cows * price[5]);
+	  }
+
+
+	  public State T (State p, Action q, int stage){
+		  if (q == keep){		 
+			  int numcows = 
+(int)Math.floor(1.5*((MyState)p).cows);
+			  return states.state(numcows);
+		  }
+		  else return states.state(0);
+	  }
+
+	  public Actions getActions(State p, int stage){
+		  return actions;
+	  }
+
+
+
+	  
+	  public static void main(String a[]){
+		  MyProblem pro = new MyProblem(initStates(),5);
+		  pro.solve();
+		  MyState initial = (MyState)pro.states.state(50);
+		  System.out.println(pro.bestPolicy(initial));
+
+	  }
+
+
+}
+
+
+//
+//   MyStates associates the number of cows to every state.
+//
+
+
+class MyState extends State{
+	int cows; // number of cows
+
+	MyState(int cws){
+		super(cws+&quot;cows&quot;);
+		cows = cws;
+	}
+}</PRE>
+<P>
+<BR> <HR>
+<P><ADDRESS>
+<I> <BR>
+Tue May 13 01:08:37 EDT 1997</I>
+</ADDRESS>
+</BODY>
+</HTML>

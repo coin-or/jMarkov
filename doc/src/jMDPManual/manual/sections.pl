@@ -1,0 +1,60 @@
+# LaTeX2HTML 96.1 (Feb 5, 1996)
+# Associate sections original text with physical files.
+
+$key = q/0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '0%:%manual.html%:%General Purpose DP and MDP Solver' unless ($section_info{$key}); 
+$done{"manual.html"} = 1;
+$key = q/0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '3%:%node1.html%:%DP Model' unless ($section_info{$key}); 
+$done{"node1.html"} = 1;
+$key = q/0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '4%:%node2.html%:%Deterministic Discrete Programming' unless ($section_info{$key}); 
+$done{"node2.html"} = 1;
+$key = q/0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '3%:%node4.html%:%Java and Object Oriented Programming' unless ($section_info{$key}); 
+$done{"node4.html"} = 1;
+$key = q/0 0 0 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '4%:%node3.html%:%Stochastic Discrete Programming (Markov Decision Processes)' unless ($section_info{$key}); 
+$done{"node3.html"} = 1;
+$key = q/0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '3%:%node5.html%:%Package Design' unless ($section_info{$key}); 
+$done{"node5.html"} = 1;
+$key = q/0 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '3%:%node6.html%:%Examples' unless ($section_info{$key}); 
+$done{"node6.html"} = 1;
+$key = q/0 0 0 4 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '4%:%node7.html%:%Example1: The cow herd' unless ($section_info{$key}); 
+$done{"node7.html"} = 1;
+$key = q/0 0 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '3%:%node15.html%:%Future Development' unless ($section_info{$key}); 
+$done{"node15.html"} = 1;
+$key = q/0 0 0 4 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '5%:%node8.html%:%Problem Statement' unless ($section_info{$key}); 
+$done{"node8.html"} = 1;
+$key = q/0 0 0 4 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '4%:%node11.html%:%Example2: An Stochastic Inventory Problem' unless ($section_info{$key}); 
+$done{"node11.html"} = 1;
+$key = q/0 0 0 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '3%:%node16.html%:%References' unless ($section_info{$key}); 
+$done{"node16.html"} = 1;
+$key = q/0 0 0 4 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '5%:%node9.html%:%Problem Code' unless ($section_info{$key}); 
+$done{"node9.html"} = 1;
+$key = q/0 0 0 4 2 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '5%:%node12.html%:%Problem Statement' unless ($section_info{$key}); 
+$done{"node12.html"} = 1;
+$key = q/0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '3%:%node17.html%:%  About this document ... ' unless ($section_info{$key}); 
+$done{"node17.html"} = 1;
+$key = q/0 0 0 4 1 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '5%:%node10.html%:%Results' unless ($section_info{$key}); 
+$done{"node10.html"} = 1;
+$key = q/0 0 0 4 2 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '5%:%node13.html%:%Code' unless ($section_info{$key}); 
+$done{"node13.html"} = 1;
+$key = q/0 0 0 4 2 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0/;
+$section_info{$key} = '5%:%node14.html%:%Results' unless ($section_info{$key}); 
+$done{"node14.html"} = 1;
+
+1;
+

@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+    <HEAD>
+        <TITLE>The jMarkov Proyect</TITLE>
+        <META http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+    </HEAD>
+<BODY>
+
+jMarkov is a series of packages designed to model and optimize stochastic models.
+It consists of various modules:
+
+<UL>
+
+<li>
+JMarkov allows the user to create any size Markov Models by
+defining the rules of the system. This is achieved 
+extending a given class called {@link jmarkov.SimpleMarkovProcess SimpleMarkovProcess}, and implementing three functions
+that describe the dynamics of the system.
+
+The user does not need to know the details of the implementation, but rather to describe the dynamics of the system in terms of the states that the system can be and the events that can alter the current state. The user can have freedom to override in many ways the default behavior of the system. 
+
+The basic steps that the user should follow are
+
+
+<ul>
+  <li>Define what the states are by implementing the class {@link jmarkov.basic.State State}   or the class {@link jmarkov.basic.PropertiesState PropertiesState}.</li>
+  <li>Define what the Events are. This can be accomplished either implementing the
+  {@link jmarkov.basic.Event Event } class. </li>
+  <li> Extend the class {@link jmarkov.MarkovProcess MarkovProcess } or {@link jmarkov.SimpleMarkovProcess SimpleMarkovProcess }, defining the three following items
+  <ul>  
+    <li>Define which events can occur when the system is in each state. This is accomplished by implementing the method {@link jmarkov.SimpleMarkovProcess#active(jmarkov.basic.State, jmarkov.basic.Event) active}. </li>
+    <li>Define what are the new states when an event occurs. This is accomplished implementing the method {@link jmarkov.SimpleMarkovProcess#dests(jmarkov.basic.State, jmarkov.basic.Event) dests}.</li>
+    <li>Define what is the the rate at which each of these events occur, by implementing the method {@link jmarkov.SimpleMarkovProcess#rate(jmarkov.basic.State,jmarkov.basic.State,jmarkov.basic.Event) rate}. </li>
+  </ul>
+</ul>
+
+
+
+<li> jQBD allows the user to model quisi-birth and death processes.
+
+<li> jPhase allows the user to represent and manipulate phase type distributions. See jPhase User's Manual in the file <A HREF="jPhaseManual.pdf">jPhaseManual.pdf</A>.
+
+<li> jMDP allows the user to design optimal control for discrete and continuous Markov Chains (Markov Decision Processes) and also deterministic discrete dynamic programs. 
+See jMDP User's Manual in the file <A HREF="jMDPManual.pdf">jMDPManual.pdf</A>. 
+
+</UL>
+
+<tex txt="  \input{intro.tex} " >
+
+Details and examples can be found in the PDF file
+<A HREF="jMarkovManual.pdf">jMarkovManual.pdf</A>.
+
+This Reference documentation can be read in pdf format in the file <A HREF="jMarkovRefManual.pdf">jMarkovRefManual.pdf</A>.<P>
+</tex>
+
+jMarkov is a proyect created at Universidad de los Andes by the <A HREF="http://copa.uniandes.edu.co">COPA</A> research group.
+
+</BODY>
+</HTML>

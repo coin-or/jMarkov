@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 3.0//EN">
+<!--Converted with LaTeX2HTML 96.1 (Feb 5, 1996) by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds -->
+<HTML>
+<HEAD>
+<TITLE>Package Design</TITLE>
+<META NAME="description" CONTENT="Package Design">
+<META NAME="keywords" CONTENT="manual">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<LINK REL=STYLESHEET HREF="manual.css">
+</HEAD>
+<BODY LANG="EN">
+ <A NAME="tex2html68" HREF="node6.html"><IMG WIDTH=37 HEIGHT=24 ALIGN=BOTTOM ALT="next" SRC="http://akula.isye.gatech.edu/images/next_motif.gif"></A> <A NAME="tex2html66" HREF="manual.html"><IMG WIDTH=26 HEIGHT=24 ALIGN=BOTTOM ALT="up" SRC="http://akula.isye.gatech.edu/images/up_motif.gif"></A> <A NAME="tex2html60" HREF="node4.html"><IMG WIDTH=63 HEIGHT=24 ALIGN=BOTTOM ALT="previous" SRC="http://akula.isye.gatech.edu/images/previous_motif.gif"></A>   <BR>
+<B> Next:</B> <A NAME="tex2html69" HREF="node6.html">Examples</A>
+<B>Up:</B> <A NAME="tex2html67" HREF="manual.html">General Purpose DP and </A>
+<B> Previous:</B> <A NAME="tex2html61" HREF="node4.html">Java and Object Oriented </A>
+<BR> <P>
+<H1><A NAME="SECTION00030000000000000000">Package Design</A></H1>
+<P>
+The package design is as follows. We have defined the following classes:
+<PRE>
+Action
+State
+Actions 
+States
+Policy 
+Policies
+DPSEnumeration 
+MDP
+DPProblem</PRE>
+<P>
+The last one is an abstract class, that contains the following abstract 
+methods (functions):
+<P>
+<PRE>
+double immediateReward(State p, Action q, int stage);
+Actions getActions(State p, int stage)
+States getStates(int stage)
+State T(State p, Action q, stage t)</PRE>
+<P>
+Optionally, the user can override the following functions:
+<P>
+<b>States getStates(int stage)</b>: The set of possible states at this stage. By default returns a common set of states.
+<P>
+<b>double operation(double present, double future)</b> : the operator between present and future rewards. By default it's sum.
+<P>
+<b>double finalReward(State p)</b>. By default it is the optimal of immediate reward over all possible states.
+<P>
+If a user wants to solve a DP problem al she/he will have to do is to 
+extend the class <b>DPProblem</b>, implementing the abstract funcions. It can be 
+seen that there is a one to one correspondance between the theoretical 
+and the computational framework, since all we want the user is to 
+especify the forementioned elements of the DP Problem. This focus the 
+user on the modelling, and leaves the computation to the internally 
+defined functions.
+<P>
+Frequently the user might want to extend the classes Action and State, to define what the actions and states are. And also the class <b>States</b> and <b>Actions</b>, in order to define eficient numeration schemes.
+<P>
+Once the model is well defined, all the user will have 
+to do is to call the method &quot;solve()&quot;. After the problem has been solved, the user can read the solution printing &quot;bestPolicy()&quot;, or with the variable &quot;policies&quot; 
+obtained calling getPolicies().
+<P>
+In the stochastic case there are some slight modifications:
+<UL><LI> The user should extend the class MDP instead of DPProblem.<LI> Instead of a transition function, the user must especify a transition probability function prob(p2,p1,q).<LI> The user can override the method <b>reachable(State p)</b> that gives the set of reachable states from a given state. This is particularlly useful when the probabilities matrx is a disperse matrix, because this will guarantee that the algorithm only checks some few states at every step, ignoring those for which the probability is 0.
+</UL>
+<P>
+To fully understand each of this classes you should check the API (Aplication user Interface) at:
+http://www.isye.gatech.edu/&nbsp;griano/DPS/doc/Package-Dp.html.
+<P>
+Also the next section gives some examples.
+<P>
+<HR><A NAME="tex2html68" HREF="node6.html"><IMG WIDTH=37 HEIGHT=24 ALIGN=BOTTOM ALT="next" SRC="http://akula.isye.gatech.edu/images/next_motif.gif"></A> <A NAME="tex2html66" HREF="manual.html"><IMG WIDTH=26 HEIGHT=24 ALIGN=BOTTOM ALT="up" SRC="http://akula.isye.gatech.edu/images/up_motif.gif"></A> <A NAME="tex2html60" HREF="node4.html"><IMG WIDTH=63 HEIGHT=24 ALIGN=BOTTOM ALT="previous" SRC="http://akula.isye.gatech.edu/images/previous_motif.gif"></A>   <BR>
+<B> Next:</B> <A NAME="tex2html69" HREF="node6.html">Examples</A>
+<B>Up:</B> <A NAME="tex2html67" HREF="manual.html">General Purpose DP and </A>
+<B> Previous:</B> <A NAME="tex2html61" HREF="node4.html">Java and Object Oriented </A>
+<P><ADDRESS>
+<I> <BR>
+Tue May 13 01:08:37 EDT 1997</I>
+</ADDRESS>
+</BODY>
+</HTML>
