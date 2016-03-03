@@ -22,14 +22,14 @@ import no.uib.cipr.matrix.VectorEntry;
 import no.uib.cipr.matrix.sparse.FlexCompRowMatrix;
 
 /**
- * The class GeomProcess represents a continuos or discrete Quasi
+ * The class GeomProcess represents a continuous or discrete Quasi
  * Birth and Death process. This class extends the class
  * SimpleMarkovProcess. The class generate the G matrix through the
  * Logarithmic Reduction algorithm. The user should extend State to
  * generate Sub-States.
  * @param <Sub> The sub-states.
  * @param <E> The events class
- * @author Julio G�ez.
+ * @author Julio Goez.
  * @version 1.0
  */
 public abstract class GeomProcess<Sub extends State, E extends Event> extends
@@ -166,7 +166,7 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
         int[] rowsSub = new int[rowMax - rowMin + 1];
         int[] columns = new int[colMax - colMin + 1];
         int[] columnsSub = new int[colMax - colMin + 1];
-        long startTimeIdx = System.currentTimeMillis();
+        //long startTimeIdx = System.currentTimeMillis();
     	
         for (int i = rowMin; i < rowMax + 1; i++) {
             rows[i - rowMin] = i;
@@ -178,15 +178,15 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
             columnsSub[i - colMin] = i - colMin;
         }
 
-        long stopTimeIdx = System.currentTimeMillis();
+        /*long stopTimeIdx = System.currentTimeMillis();
         long elapsedTimeIdx = stopTimeIdx - startTimeIdx;
-        System.out.println("getSubMatrices - Index building time: "+elapsedTimeIdx+" ms");
+        System.out.println("getSubMatrices - Index building time: "+elapsedTimeIdx+" ms");*/
         
-        long startTimeGetGen = System.currentTimeMillis();
+        //long startTimeGetGen = System.currentTimeMillis();
         Matrix generator = this.getMtjGenerator();
-        long stopTimeGetGen = System.currentTimeMillis();
+        /*long stopTimeGetGen = System.currentTimeMillis();
         long elapsedTimeGetGen = stopTimeGetGen - startTimeGetGen;
-        System.out.println("getSubMatrices - getMtjGeneartor: "+elapsedTimeGetGen+" ms");
+        System.out.println("getSubMatrices - getMtjGeneartor: "+elapsedTimeGetGen+" ms");*/
         
         
         // int rDim = rows.length;
@@ -197,12 +197,12 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
         // FlexCompRowMatrix SubMatrix = new FlexCompRowMatrix(rDim,
         // cDim);
         // SubMatrix.set(rowsSub, columnsSub, tempM);
-        long startTimeGetSubMat = System.currentTimeMillis();
+        //long startTimeGetSubMat = System.currentTimeMillis();
         
         Matrix SubMatrix = Matrices.getSubMatrix(generator, rows, columns);
-        long stopTimeGetSubMat = System.currentTimeMillis();
+        /*long stopTimeGetSubMat = System.currentTimeMillis();
         long elapsedTimeGetSubMat = stopTimeGetSubMat - startTimeGetSubMat;
-        System.out.println("getSubMatrices - Matrices.getSubmatrix: "+elapsedTimeGetSubMat+" ms");
+        System.out.println("getSubMatrices - Matrices.getSubmatrix: "+elapsedTimeGetSubMat+" ms");*/
         return SubMatrix;
     }
 
@@ -226,11 +226,11 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
                 isStable = isStable();
             if (!isStable)
                 return new DenseMatrix(n, n);
-            long startTime = System.currentTimeMillis();
+            //long startTime = System.currentTimeMillis();
             R = new DenseMatrix(getGeometrixSolver().getRmatrix());
-	    	long stopTime = System.currentTimeMillis();
+	    	/*long stopTime = System.currentTimeMillis();
 	        long elapsedTime = stopTime - startTime;
-	        System.out.println("\nCompute R exec time: "+elapsedTime+" ms\n");
+	        System.out.println("Compute R exec time: "+elapsedTime+" ms");*/
         }
         return R;
     }
@@ -263,22 +263,22 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
      */
     public Matrix[] getAMatrices() {
         if (A == null) {
-        	long startTimeGetIdx = System.currentTimeMillis();
+        	//long startTimeGetIdx = System.currentTimeMillis();
         	getLevelsIndices();
-            long stopTimeGetIdx = System.currentTimeMillis();
-            long elapsedTimeGetIdx = stopTimeGetIdx - startTimeGetIdx;
-	        System.out.println("getMatrices - GetLevelIndices time: "+elapsedTimeGetIdx+" ms");
+            //long stopTimeGetIdx = System.currentTimeMillis();
+            //long elapsedTimeGetIdx = stopTimeGetIdx - startTimeGetIdx;
+	        //System.out.println("getMatrices - GetLevelIndices time: "+elapsedTimeGetIdx+" ms");
             
-	        long startTimeGetSubMat = System.currentTimeMillis();
+	        //long startTimeGetSubMat = System.currentTimeMillis();
             Matrix A0 = getSubMatrices((boundaryIdx + 1), level1Idx,
                     (level1Idx + 1), level2Idx);
             Matrix A1 = getSubMatrices((boundaryIdx + 1), level1Idx,
                     (boundaryIdx + 1), level1Idx);
             Matrix A2 = getSubMatrices((level1Idx + 1), level2Idx,
                     (boundaryIdx + 1), level1Idx);
-            long stopTimeGetSubMat = System.currentTimeMillis();
-            long elapsedTimeGetSubMat = stopTimeGetSubMat - startTimeGetSubMat;
-	        System.out.println("getMatrices - GetSubMatrices time: "+elapsedTimeGetSubMat+" ms");
+            //long stopTimeGetSubMat = System.currentTimeMillis();
+            //long elapsedTimeGetSubMat = stopTimeGetSubMat - startTimeGetSubMat;
+	        //System.out.println("getMatrices - GetSubMatrices time: "+elapsedTimeGetSubMat+" ms");
 	        
 	        
             A = new Matrix[] { A0, A1, A2 };
@@ -323,11 +323,11 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
 
         if (pis == null) {
             /** Stability test */
-        	long startTimeStable = System.currentTimeMillis();
+        	//long startTimeStable = System.currentTimeMillis();
             boolean stable = isStable();
-            long stopTimeStable = System.currentTimeMillis();
+            /*long stopTimeStable = System.currentTimeMillis();
 	        long elapsedTimeStable = stopTimeStable - startTimeStable;
-	        System.out.println("\nisStable exec time: "+elapsedTimeStable+" ms\n");
+	        System.out.println("\nisStable exec time: "+elapsedTimeStable+" ms\n");*/
 	        
             if (!stable) {
                 debug(0, "The system is unstable");
@@ -345,42 +345,14 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
                 B00.set(i, 0, 1);
             }
 
-            long startTimeR = System.currentTimeMillis();
+            //long startTimeR = System.currentTimeMillis();
             Matrix R = getRmatrix();
-            long stopTimeR = System.currentTimeMillis();
+            /*long stopTimeR = System.currentTimeMillis();
 	        long elapsedTimeR = stopTimeR - startTimeR;
-	        System.out.println("Compute R exec time (from getInitialSol() ): "+elapsedTimeR+" ms");
+	        System.out.println("Compute R exec time (from getInitialSol() ): "+elapsedTimeR+" ms");*/
 	        
-	        long startTimePi0 = System.currentTimeMillis();
-            /*
-            
-            Matrix I = new DenseMatrix(Matrices.identity(R.numRows()));
-            Matrix e = new DenseMatrix(R.numRows(), 1);
-            DenseVector e2 = new DenseVector(R.numRows());
-            DenseVector eTemp = new DenseVector(R.numRows());
-            
-            for (int i = 0; i < e.numRows(); i++) {
-                e.set(i, 0, 1);
-                e2.set(i, 1);
-            }
-
-            long startTime = System.currentTimeMillis();
-            Matrix inversa = new DenseMatrix(R.numRows(), R.numColumns());
-            I.add(-1, R);
-            I.solve(Matrices.identity(R.numRows()), inversa);
-            I = new DenseMatrix(R.numRows(), 1);
-            inversa.mult(e, I);
-            long stopTime = System.currentTimeMillis();
-	        long elapsedTime = stopTime - startTime;
-	        System.out.println("\nTime pi solve I-R: "+elapsedTime+" ms\n");
-
-            for (int i = 0; i < B10.numRows(); i++) {
-                B10.set(i, 0, I.get(i, 0));
-                eTemp.set(i, I.get(i, 0));
-            }
-            */
-            
-            long startTime2 = System.currentTimeMillis();
+	        /*long startTimePi0 = System.currentTimeMillis();
+            long startTime2 = System.currentTimeMillis();*/
 	        DenseVector e = new DenseVector(R.numRows());
             
             //for (int i = 0; i < e.numRows(); i++) {
@@ -391,49 +363,45 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
             I.add(-1, R);
             DenseVector x = new DenseVector(R.numRows());
             I.solve(e, x);
-            
+            for (int i = 0; i < B10.numRows(); i++) {
+                B10.set(i, 0, x.get(i));
+            }
+            /*
             long stopTime2 = System.currentTimeMillis();
 	        long elapsedTime2 = stopTime2 - startTime2;
-	        System.out.println("Time NEW pi solve I-R: "+elapsedTime2+" ms");
-	        /*
-	        double err = (eTemp.add(-1, x)).norm(Vector.Norm.Infinity);
-	        System.out.println("\nerror new I-R inv: "+err+"\n");*/
+	        System.out.println("Time NEW pi solve I-R: "+elapsedTime2+" ms"); */
 	        
             
 
             int columDimension = B00.numColumns() + B01.numColumns();
             int rowDimension = B00.numRows() + B10.numRows();
-            // DenseMatrix M22 = new DenseMatrix(A1.numRows(),
-            // A1.numColumns());
-            // R.multAdd(A2, A1, M22);
-            long startTime3 = System.currentTimeMillis();
-            //Matrix M22 = R.multAdd(A2, A1);
+            //long startTime3 = System.currentTimeMillis();
             R.multAdd(A2, A1);
-            long stopTime3 = System.currentTimeMillis();
+            /*long stopTime3 = System.currentTimeMillis();
             long elapsedTime3 = stopTime3 - startTime3;
-	        System.out.println("Time pi multAdd: "+elapsedTime3+" ms");
+	        System.out.println("Time pi multAdd: "+elapsedTime3+" ms");*/
 	        
             DenseVector Pis = new DenseVector(rowDimension);
+            //DenseVector Pis2 = new DenseVector(rowDimension);
             DenseVector zeros = new DenseVector(columDimension);
             zeros.zero();
             zeros.set(0, 1);
 
-            startTime3 = System.currentTimeMillis();
-            //DenseMatrix MTotal = assmbleMatrix(B00, B01, B10, M22);
+            //startTime3 = System.currentTimeMillis();
             DenseMatrix MTotal = assmbleMatrix(B00, B01, B10, A1);
-            stopTime3 = System.currentTimeMillis();
+            /*stopTime3 = System.currentTimeMillis();
             elapsedTime3 = stopTime3 - startTime3;
-	        System.out.println("Time pi assemble: "+elapsedTime3+" ms");
+	        System.out.println("Time pi assemble: "+elapsedTime3+" ms");*/
 	        
-            startTime3 = System.currentTimeMillis();
+            //startTime3 = System.currentTimeMillis();
             MTotal.transSolve(zeros, Pis);
-            stopTime3 = System.currentTimeMillis();
+            /*stopTime3 = System.currentTimeMillis();
 	        elapsedTime3 = stopTime3 - startTime3;
-	        System.out.println("Time pi solve pi0: "+elapsedTime3+" ms");
+	        System.out.println("Time pi solve pi0: "+elapsedTime3+" ms");*/
 	        
-            long stopTimePi0 = System.currentTimeMillis();
+            /*long stopTimePi0 = System.currentTimeMillis();
 	        long elapsedTimePi0 = stopTimePi0 - startTimePi0;
-	        System.out.println("Compute Pi0 exec time: "+elapsedTimePi0+" ms");
+	        System.out.println("Compute Pi0 exec time: "+elapsedTimePi0+" ms");*/
             pis = Pis.getData();
         }
         return pis;
@@ -528,24 +496,24 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
      */
     public double[] getVectorPi1Mod() throws NotUnichainException {
         if (pi1mod == null) {
-        	long startTimePi1 = System.currentTimeMillis();
+        	//long startTimePi1 = System.currentTimeMillis();
             pi1 = getVectorPi1();
-            long stopTimePi1 = System.currentTimeMillis();
+            /*long stopTimePi1 = System.currentTimeMillis();
             long elapsedTimePi1 = stopTimePi1 - startTimePi1;
-	        System.out.println("Compute Pi1 exec time: "+elapsedTimePi1+" ms");
+	        System.out.println("Compute Pi1 exec time: "+elapsedTimePi1+" ms");*/
 	        
             int n = getNumTypicalStates();
             R = getRmatrix();
             
-            long startTimePi1Mod = System.currentTimeMillis();
+            //long startTimePi1Mod = System.currentTimeMillis();
             DenseVector sol = new DenseVector(n);
             Matrix ImR = new DenseMatrix(Matrices.identity(n));
             ImR.add(-1, R);
             ImR.transSolve(new DenseVector(pi1), sol);
             pi1mod = sol.getData();
-            long stopTimePi1Mod = System.currentTimeMillis();
+            /*long stopTimePi1Mod = System.currentTimeMillis();
 	        long elapsedTimePi1Mod = stopTimePi1Mod - startTimePi1Mod;
-	        System.out.println("Compute Pi1Mod exec time: "+elapsedTimePi1Mod+" ms");
+	        System.out.println("Compute Pi1Mod exec time: "+elapsedTimePi1Mod+" ms");*/
 
         }
         return pi1mod;
@@ -656,16 +624,16 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
     public double getExpectedLevel() throws NotUnichainException {
         double expLevel = -1;
         if (expLevel == -1) {
-        	long startTimeEL = System.currentTimeMillis();
+        	//long startTimeEL = System.currentTimeMillis();
         	
             double pi1mod[] = getVectorPi1Mod();
             int n = getNumTypicalStates();
             
-            long startTimeR = System.currentTimeMillis();
+            //long startTimeR = System.currentTimeMillis();
             R = getRmatrix();
-            long stopTimeR = System.currentTimeMillis();
+            /*long stopTimeR = System.currentTimeMillis();
             long elapsedTimeR = stopTimeR - startTimeR;
-	        System.out.println("Compute R exec time (from getExpectedLevel): "+elapsedTimeR+" ms");
+	        System.out.println("Compute R exec time (from getExpectedLevel): "+elapsedTimeR+" ms");*/
 	        
             DenseVector sol = new DenseVector(n);
             Matrix ImR = new DenseMatrix(Matrices.identity(n));
@@ -673,9 +641,9 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
             ImR.transSolve(new DenseVector(pi1mod), sol);
             expLevel = sol.norm(Vector.Norm.One);
             
-            long stopTimeEL = System.currentTimeMillis();
+            /*long stopTimeEL = System.currentTimeMillis();
             long elapsedTimeEL = stopTimeEL - startTimeEL;
-	        System.out.println("Compute Exp Level exec time: "+elapsedTimeEL+" ms");
+	        System.out.println("Compute Exp Level exec time: "+elapsedTimeEL+" ms");*/
 
         }
         return expLevel;
@@ -714,12 +682,7 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
      */
     public boolean isStable() {
         if (!stabilityChecked) {
-        	long startTimeGetA = System.currentTimeMillis();
-            Matrix A[] = getAMatrices();
-            long stopTimeGetA = System.currentTimeMillis();
-            long elapsedTimeGetA = stopTimeGetA - startTimeGetA;
-	        System.out.println("isStable - GetA time: "+elapsedTimeGetA+" ms");
-	        
+        	Matrix A[] = getAMatrices();
             Matrix A0 = A[0], A1 = A[1], A2 = A[2];
 
             int dim = A0.numRows();
@@ -735,45 +698,24 @@ public abstract class GeomProcess<Sub extends State, E extends Event> extends
             b.zero();
             b.set((dim - 1), 0, 1);
             
-            long startTimeAdd = System.currentTimeMillis();
             sum.add(A0);
             sum.add(A1);
             sum.add(A2);
-            long stopTimeAdd = System.currentTimeMillis();
-            long elapsedTimeAdd = stopTimeAdd - startTimeAdd;
-	        System.out.println("isStable - add time: "+elapsedTimeAdd+" ms");
 	        
-	        long startTimeSet = System.currentTimeMillis();
             for (int i = 0; i < dim; i++) {
                 sum.set(i, (dim - 1), 1);
             }
-            long stopTimeSet = System.currentTimeMillis();
-            long elapsedTimeSet = stopTimeSet - startTimeSet;
-	        System.out.println("isStable - set time: "+elapsedTimeSet+" ms");
-            
-            long startTimeSolve = System.currentTimeMillis();
             sum.transSolve(b, f);
-            long stopTimeSolve = System.currentTimeMillis();
-            long elapsedTimeSolve = stopTimeSolve - startTimeSolve;
-	        System.out.println("isStable - solve time: "+elapsedTimeSolve+" ms");
 	        
             f.transpose(ft);
 
-            long startTimeMult = System.currentTimeMillis();
             ft.mult(A2, right);
             ft.mult(A0, left);
-            long stopTimeMult = System.currentTimeMillis();
-            long elapsedTimeMult = stopTimeMult - startTimeMult;
-	        System.out.println("isStable - mult time: "+elapsedTimeMult+" ms");
 
-            long startTimeLR = System.currentTimeMillis();
             for (int i = 0; i < dim; i++) {
                 R += right.get(0, i);
                 L += left.get(0, i);
             }
-            long stopTimeLR = System.currentTimeMillis();
-            long elapsedTimeLR = stopTimeLR - startTimeLR;
-	        System.out.println("isStable - LR time: "+elapsedTimeLR+" ms");
             
             isStable = (L < R);
             stabilityChecked = true;

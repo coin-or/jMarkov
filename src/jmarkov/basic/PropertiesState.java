@@ -7,7 +7,7 @@ import jmarkov.MarkovProcess;
  * meaning will change from implementation to implementation. The class must be
  * extended.
  * 
- * @author German Riaño, Andres Sarmiento. Universidad de los Andes.
+ * @author German Riano, Andres Sarmiento. Universidad de los Andes.
  * @version 1.0a
  */
 
@@ -35,7 +35,7 @@ public class PropertiesState extends State implements PropertiesElement {
      * this array after it is given to the constructor.
      * 
      * @param properties
-     *            An integer valued array with the proerties that characterize
+     *            An integer valued array with the properties that characterize
      *            this state.
      */
     public PropertiesState(int[] properties) {
@@ -46,7 +46,7 @@ public class PropertiesState extends State implements PropertiesElement {
      * This creates a PropertiesState with the given array.
      * 
      * @param properties
-     *            An integer valued array with the proerties that characterize
+     *            An integer valued array with the properties that characterize
      *            this state.
      * @param deepCopy
      *            true if the constructor should make a deep copy of the array.
@@ -124,7 +124,7 @@ public class PropertiesState extends State implements PropertiesElement {
             return (K < K2) ? -1 : 1;// not equal if they are not the same
         // size
         for (int i = 0; i < K; i++) {
-            // As soon as a dicrepancy is found we exit.
+            // As soon as a discrepancy is found we exit.
             if (prop[i] < ps.prop[i])
                 return -1;
             if (prop[i] > ps.prop[i])

@@ -12,7 +12,7 @@ import jmarkov.basic.JMarkovElement;
  * Most users do not need to implement this class since a default
  * solver is provided.
  * 
- * @author Germán Riaño. Universidad de los Andes.
+ * @author German Riano. Universidad de los Andes.
  * @see jmarkov.solvers.SteadyStateSolver
  * @see jmarkov.solvers.TransientSolver
  * @see jmarkov.solvers.JamaSolver

@@ -29,7 +29,7 @@ import no.uib.cipr.matrix.sparse.SparseVector;
 /**
  * This class uses MTJ to solve Steady State probabilities.
  * 
- * @author Germán Riaño. Universidad de los Andes.
+ * @author German Riano. Universidad de los Andes.
  */
 public class MtjSolver extends SteadyStateSolver {
 
@@ -37,7 +37,7 @@ public class MtjSolver extends SteadyStateSolver {
      * 
      * This is the list of preconditioner offered in MTJ.
      * 
-     * @author Germán Riaño. Universidad de los Andes.
+     * @author German Riano. Universidad de los Andes.
      * 
      */
     public enum EnumPrecond {
@@ -68,7 +68,7 @@ public class MtjSolver extends SteadyStateSolver {
     /**
      * This is the list of solvers provided by MTJ.
      * 
-     * @author Germán Riaño. Universidad de los Andes.
+     * @author German Riano. Universidad de los Andes.
      * 
      */
     public enum EnumSolver {
@@ -170,15 +170,15 @@ public class MtjSolver extends SteadyStateSolver {
         if (genMatrix != null)
             return genMatrix;
         mp.debug(1, "Building MTJ Generator Matrix ...");
-        //TODO: se pordrá hacer mejor???
+        //TODO: se podra hacer mejor???
         
-        long startTimeGetRates = System.currentTimeMillis();
+        //long startTimeGetRates = System.currentTimeMillis();
         Matrix R = new FlexCompRowMatrix(mp.getMtjRates());
-        long stopTimeGetRates = System.currentTimeMillis();
+        /*long stopTimeGetRates = System.currentTimeMillis();
         long elapsedTimeGetRates = stopTimeGetRates - startTimeGetRates;
-        System.out.println("getGenerator - getMtjRates: "+elapsedTimeGetRates+" ms");
+        System.out.println("getGenerator - getMtjRates: "+elapsedTimeGetRates+" ms");*/
         
-        long startTimeQ = System.currentTimeMillis();
+        //long startTimeQ = System.currentTimeMillis();
         int n = R.numRows();
         double sum[] = new double[n];
         Matrix Q = R.copy();
@@ -195,16 +195,16 @@ public class MtjSolver extends SteadyStateSolver {
             Q.set(i, i, -sum[i]);
             maxLambda = Math.max(sum[i], maxLambda);
         }
-        long stopTimeQ = System.currentTimeMillis();
+        /*long stopTimeQ = System.currentTimeMillis();
         long elapsedTimeQ = stopTimeQ - startTimeQ;
-        System.out.println("getGenerator - Q from R: "+elapsedTimeQ+" ms");
+        System.out.println("getGenerator - Q from R: "+elapsedTimeQ+" ms");*/
         
         mp.debug(3, "The Generator matrix is: \n" + Q);
         return (genMatrix = Q);
     }
 
     /**
-     * Returns tha A matrix, used to solve pi*A = (0,...,1)
+     * Returns the A matrix, used to solve pi*A = (0,...,1)
      * 
      * @return The matrix used in the linear system.
      */
@@ -294,7 +294,7 @@ public class MtjSolver extends SteadyStateSolver {
     }
 
     /**
-     * Solves pi * A = b for pi, usen the given solver.
+     * Solves pi * A = b for pi, using the given solver.
      * 
      * @param A
      * @param b

@@ -10,7 +10,7 @@ import jmarkov.basic.State;
  * The actual Geometric model is build using this class. The user normally does
  * not have to manipulate this class.
  * 
- * @author Julio Góez, Germán Riaño. Universidad de los Andes. (C) 2005
+ * @author Julio Goez, Germán Riano. Universidad de los Andes. (C) 2005
  * @param <Sub>
  *            The sub-States class used.
  */
@@ -46,7 +46,7 @@ public final class GeomState<Sub extends State> extends State {
     }
 
     /**
-     * @return tru if this state is level 0.
+     * @return true if this state is level 0.
      */
     public boolean isBoundary() {
         return (getLevel() == 0);

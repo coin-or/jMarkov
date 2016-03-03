@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 
 import no.uib.cipr.matrix.DenseVector;
 import no.uib.cipr.matrix.Vector;
-
+import no.uib.cipr.matrix.Vector.Norm;
 import jmarkov.GeomProcess;
 import jmarkov.GeomRelState;
 import jmarkov.MarkovProcess;
@@ -352,13 +352,15 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
     
 	public static void main(String[] a) {
 		
-		int version = 1; //1: paper, 2: timing
+		int version = 1; //1: paper, 2: timing, 3: scalability
 		
 		double lambda_hi;
 	    double lambda_low;
 	    ContPhaseVar servTime_hi;
 	    ContPhaseVar servTime_low;
 	    int bufferCapacity;
+	    double lambda[] = {0.05, 0.25, 0.45};
+		double meanExecs[];
 	    PriorityQueueMPHPHPreempt model;
 		switch (version){ 
 			case 1:
@@ -379,6 +381,7 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 				servTime_low = fitter_low.fit();
 				System.out.println("mean low: "+servTime_low.expectedValue());
 				System.out.println("var hi: "+servTime_low.toString());
+				
 					
 			    bufferCapacity = 10;
 			    
@@ -387,12 +390,12 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 			    model.setDebugLevel(0);
 			    model.generate();
 		    	model.printMOPs();
+		    	model.showGUI();
 			    break;
 			case 2:
-				// parameters used for testing, especially for scalability and vs matlab
+				// parameters used for testing, especially  vs matlab
 				//double lambda[] = {0.05, 0.25, 0.45};
-				double lambda[] = {0.25};
-				double meanExecs[] = new double[lambda.length];
+				meanExecs = new double[lambda.length];
 				for (int i = 0; i < lambda.length; i++){
 				    
 				    
@@ -444,19 +447,87 @@ public class PriorityQueueMPHPHPreempt extends GeomProcess<PriorityQueueMPHPHPre
 					    	model.printMOPs();
 					    	long stopTime = System.currentTimeMillis();
 					        long elapsedTime = stopTime - startTime;
-					        System.out.println("\nExecution time: "+elapsedTime+" ms\n");
+					        System.out.println("Execution time: "+elapsedTime+" ms");
 					        meanExecTime += elapsedTime;  
 					    }
 				    }
 				    meanExecTime /= reps; 
-				    System.out.println("\nMean execution time (ms): "+meanExecTime+"\n");
-				    System.out.println("\nMean execution time (s): "+(double)meanExecTime/1000+"\n");
+				    System.out.println("Mean execution time (ms): "+meanExecTime);
+				    System.out.println("Mean execution time (s): "+(double)meanExecTime/1000);
 				    meanExecs[i] = (double)meanExecTime/1000;
 				     
 				}
 				
 				for (int i = 0; i < lambda.length; i++){
-					System.out.println("\nMean execution time (s): "+ meanExecs[i] +"\n");
+					System.out.println("Mean execution time (s): "+ meanExecs[i]);
+				}
+				
+				break;
+			case 3:
+				// parameters used for testing, especially for scalability and vs matlab
+				//int Cset[] = {10, 20, 50, 100, 200, 1000};
+				int Cset[] = {10, 20, 50, 100, 200, 500, 1000}; 
+				double meanExecScala[][] = new double[lambda.length][Cset.length];
+				for (int k = 0; k < Cset.length; k++){
+					for (int i = 0; i < lambda.length; i++){
+					    lambda_hi = lambda[i];
+					    lambda_low = lambda[i];
+					    servTime_hi = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730},
+					            new double[] { 0.788675134594813,   0.211324865405187 });
+					    
+					    servTime_low = DenseContPhaseVar.HyperExpo(new double[] { 1.577350269, 0.422649730 },
+					            new double[] { 0.788675134594813,   0.211324865405187 });
+					    
+					    double sumAlpha = 0;
+					    for(int j = 0; j < servTime_hi.getNumPhases(); j++)
+					    	sumAlpha += servTime_hi.getVectorArray()[j];
+					    DenseVector temp = (DenseVector)servTime_hi.getVector();
+					    for(int j = 0; j < servTime_hi.getNumPhases(); j++)
+					    	temp.set(j, temp.get(j)/sumAlpha);
+					    servTime_hi = new DenseContPhaseVar(temp, servTime_hi.getMatrix());
+					    
+					    //bufferCapacity = 10;
+					    bufferCapacity = Cset[k];
+					    
+					    
+					    int reps = 1;
+					    long meanExecTime = 0;
+					    for(int rep = 0; rep < reps; rep++){
+						    model = new PriorityQueueMPHPHPreempt(lambda_hi, lambda_low, servTime_hi, servTime_low, bufferCapacity);
+						    model.setMaxStates(10000);
+						    
+						    boolean useGUI = false;
+						    if(useGUI){
+						        model.showGUI();
+						        model.setDebugLevel(5);
+						        model.generate();
+						        model.printAll();}
+						    else{
+						    	model.setDebugLevel(0);
+						    	model.generate();
+						    	long startTime = System.currentTimeMillis();
+						    	model.printMOPs();
+						    	long stopTime = System.currentTimeMillis();
+						        long elapsedTime = stopTime - startTime;
+						        System.out.println("Execution time: "+elapsedTime+" ms");
+						        meanExecTime += elapsedTime;  
+						    }
+					    }
+					    meanExecTime /= reps; 
+					    //System.out.println("Mean execution time (ms): "+meanExecTime);
+					    //System.out.println("Mean execution time (s): "+(double)meanExecTime/1000);
+					    meanExecScala[i][k] = (double)meanExecTime/1000;
+					     
+					}
+				}
+				
+				System.out.println("Mean execution times (s): ");
+				for (int k = 0; k < Cset.length; k++){
+					for (int i = 0; i < lambda.length; i++){
+						//System.out.print("Mean execution time (s): "+ meanExecScala[i][k]+"\t");
+						System.out.print(meanExecScala[i][k]+"\t");
+					}
+					System.out.println();
 				}
 				
 				break;

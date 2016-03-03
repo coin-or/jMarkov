@@ -13,7 +13,7 @@ import java.io.PrintWriter;
  * (which can be associated with a file), or to a TextPanel which can be
  * included in a graphic user interface.
  * 
- * @author Germán Riaño. Universidad de los Andes.
+ * @author German Riano. Universidad de los Andes.
  * 
  */
 public class DebugReporter {

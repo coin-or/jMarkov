@@ -11,7 +11,7 @@ import jmarkov.basic.exceptions.NotUnichainException;
  * An abstract class for steady state solver. Any solver for steady state should
  * extend this class.
  * 
- * @author Germán Riaño. universidad de los Andes.
+ * @author German Riano. universidad de los Andes.
  */
 public abstract class SteadyStateSolver extends Solver {
 
