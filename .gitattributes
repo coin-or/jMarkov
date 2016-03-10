@@ -750,6 +750,7 @@ src/examples/jmdp/Admit.java -text
 src/examples/jmdp/Bank2Queues.java -text
 src/examples/jmdp/CTInventory.java -text
 src/examples/jmdp/CTInventoryEvents.java -text
+src/examples/jmdp/CarDealerProblem.java -text svneol=unset#text/plain
 src/examples/jmdp/CattleGrowth.java -text
 src/examples/jmdp/CattleGrowthFiles/CVS/Entries -text
 src/examples/jmdp/CattleGrowthFiles/CVS/Entries.Extra -text
