@@ -12,7 +12,7 @@ import jmarkov.jmdp.FiniteMDP;
  * the jmdp package as a tool for solving real life problems. The complete
  * details of the present problems are explained in the documentation.
  * 
- * @author Andres Sarmiento, Germán Riaño - Universidad de Los Andes
+ * @author Andres Sarmiento, German Riano - Universidad de Los Andes
  */
 public class StochasticDemand extends FiniteMDP<InvLevel, Order> {
 	//TODO: This example needs more documentation

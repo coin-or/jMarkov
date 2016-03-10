@@ -143,7 +143,7 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
     }
     
     /**
-     * Determines the active atates that are reacheble from state i, when
+     * Determines the states that are reacheble from state i, when
      * action a is taken and event e occurs. Namely, the only reachable state is
      * j= i + a - e.
      * @param i the inventory level before ordering
@@ -161,11 +161,10 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
     }
     
     /**
-     * Determines the active atates that are reacheble from state i, when
-     * action a is taken and event e occurs. Namely, the only reachable state is
-     * j= i + a - e.
-     * @param i the inventory level before ordering
-     * @param a the order amount
+     * Determines the probability that event e happens in state i.
+     * Namely, this is the pmf of a Poission for e<i+a and the CCDF of
+     * a Poisson for e=i+a. And zero for anything else.
+     * @param i the inventory level
      * @param e the demand event
      */
     @Override
@@ -175,7 +174,13 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
     	return demPMF[e .getDemand ( ) ] ; 
     }
     
-    // These 
+    /**
+     * Determines the cost of ordering a units when there are i in inventory.
+     * We refer the user to the user manual for a detailed explanation of 
+     * these formulas.
+     * @param i the inventory level
+     * @param a the order amount
+     */    
     public double immediateCost( InvLevel i , Order a) {
     	int maxSale = i . getLevel () + a. getSize ( ) ;
     	double expectedSales = expDemand − demandLoss1[maxSale ];
@@ -188,9 +193,8 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
 
 
     /**
-     * Simple test Program.
+     * Test Program.
      * 
-     * @param a
      * @throws SolverException
      */
     public static void main(String a[]) throws SolverException {

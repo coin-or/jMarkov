@@ -10,7 +10,7 @@ import jmarkov.basic.PropertiesState;
 /**
  * This class allows to represent a State with a songle integer.
  * It's used in many of the examples.
- * @author Germán Riaño, Andres Sarmiento. Universida de los Andes
+ * @author Daniel Silva, German Riano, Andres Sarmiento. Universida de los Andes
  */
 public class InvLevel extends PropertiesState {
     /**
