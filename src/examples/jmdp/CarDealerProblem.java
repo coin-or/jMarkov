@@ -2,10 +2,13 @@ package examples.jmdp;
 
 import jmarkov.basic.Actions;
 import jmarkov.basic.ActionsSet;
+import jmarkov.basic.Event;
+import jmarkov.basic.Events;
+import jmarkov.basic.EventsSet;
 import jmarkov.basic.States;
 import jmarkov.basic.StatesSet;
 import jmarkov.basic.exceptions.SolverException;
-import jmarkov.jmdp.DTMDP;
+import jmarkov.jmdp.DTMDPEv;
 import jmarkov.jmdp.solvers.PolicyIterationSolver;
 import jmarkov.jmdp.solvers.RelativeValueIterationSolver;
 import jmarkov.jmdp.solvers.ValueIterationSolver;
@@ -35,7 +38,7 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
     // Cost and demand parameters:
     private double truckCost, holdingCost, expDemand, price, cost, discountFactor;
     // Demand distribution information:
-    private double[] demPMF, demCDF, demandLoss1;
+    private double[] demPMF, demCCDF, demandLoss1;
     private boolean isdisc = false;
 
 
@@ -63,8 +66,8 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
      */
 
     @SuppressWarnings("unchecked")
-    public InfStochasticDemand(int maxInv, int truckSize, double truckCost, double price, double cost,
-            double holdingCost, double intRate, double expDemand, boolean discounted) {
+    public CarDealerProblem(int maxInv, int truckSize, double truckCost, double price, double cost,
+            double holdingCost, double discFactor, double expDemand, boolean discounted) {
         super(new StatesSet<InvLevel>(new InvLevel(0)));
         this.maxInv = maxInv;
         this.truckSize = truckSize;
@@ -75,9 +78,9 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
         this.expDemand = expDemand;
         initializeProbabilities();
         this.isdisc = discounted;
-        this.discountFactor = intRate;
+        this.discountFactor = discFactor;
         if (discounted)
-            setSolver(new ValueIterationSolver(this, DiscountFactor));
+            setSolver(new ValueIterationSolver(this, discountFactor));
         else
             setSolver(new RelativeValueIterationSolver(this));
     }
@@ -95,10 +98,10 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
         demandLoss1 = new double[maxInv + 1];
         double cdf, p = Math.exp(-expDemand);
         demPMF[0] = p;
-        cdf = 1-p; 
-        demCCDF[0]=0;
+        cdf = p; 
+        demCCDF[0]=1;
         demandLoss1[0] = expDemand;
-        int maxlevel = maxInv + maxBO;
+        int maxlevel = maxInv;
         for (int i = 1; i <= maxlevel; i++) {
             demCCDF[i] = 1-cdf; // P{demand >= i}
         	demPMF[i] = (p *= expDemand / i); // P{demand = i}
@@ -167,13 +170,22 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
      * @param i the inventory level
      * @param e the demand event
      */
-    @Override
-    public double prob( InvLevel i , DemandEvent e) {
+	@Override
+	public double prob(InvLevel i, DemandEvent e) {
     	if (e . getGreaterThan ( ) )
     	return demCCDF[e .getDemand ( ) ] ;
     	return demPMF[e .getDemand ( ) ] ; 
     }
     
+	@Override
+	public double prob(InvLevel i, InvLevel j, Order a, DemandEvent e) {
+		if (j.getLevel()==i.getLevel()+a.getSize()-e.getDemand())
+			return 1;
+		else
+			return 0;
+	}
+
+	
     /**
      * Determines the cost of ordering a units when there are i in inventory.
      * We refer the user to the user manual for a detailed explanation of 
@@ -181,13 +193,14 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
      * @param i the inventory level
      * @param a the order amount
      */    
-    public double immediateCost( InvLevel i , Order a) {
+	@Override
+    public double immediateCost(InvLevel i, Order a, DemandEvent e) {
     	int maxSale = i . getLevel () + a. getSize ( ) ;
-    	double expectedSales = expDemand − demandLoss1[maxSale ];
-    	double netProfit = price*expectedSales − orderCost (a. getSize())− holdCost * i . getLevel ( ) ;
-    	return −netProfit ;
+    	double expectedSales = expDemand - demandLoss1[maxSale ];
+    	double netProfit = price*expectedSales - orderCost (a. getSize()) - holdingCost * i . getLevel ( ) ;
+    	return -netProfit ;
     	}
-    	double orderCost ( int x) {
+    double orderCost ( int x) {
     	return truckCost*Math. ceil ((double) x /truckSize ) + x * cost ;
     }
 
@@ -197,30 +210,13 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
      * 
      * @throws SolverException
      */
-    public static void main(String a[]) throws SolverException {
-        int maxInventory = 25;
-        int maxBackorders = 0;
-        int truckSize = 4;
-        int truckCost = 1000;
-        double holdCost = 50;
-        double intRate = Math.pow(1.3, 1 / 52);
-        double theta = 20;
-        double price = 1100;// 22000;
-        double cost = 500;// 20000;
-
-        InfStochasticDemand prob = new InfStochasticDemand(maxInventory,
-                maxBackorders, truckSize, truckCost, b, price, cost, holdCost, intRate, theta,
-                false);
-
-        RelativeValueIterationSolver<InvLevel, Order> solv = new RelativeValueIterationSolver<InvLevel, Order>(
-                prob);
-
-        prob.setSolver(solv);
-        prob.getSolver().setPrintValueFunction(true);
-        prob.solve();
-        prob.printSolution();
-
-
+    public static void main( String a [ ] ) throws SolverException {
+    	int maxInventory = 10; int truckSize = 4; double lambda = 7; double price = 1100; double cost = 500;
+    	double holdCost = 50; double truckCost = 800; double discFactor=0.9; 
+    	CarDealerProblem prob = new CarDealerProblem(maxInventory , truckSize , truckCost , 
+    			price , cost , holdCost, discFactor, lambda, false  );
+    	prob.setDebugLevel(3);
+    	prob.solve ( ) ;
+    	prob.printSolution ( ) ;
     }
-
 }
