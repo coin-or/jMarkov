@@ -8,7 +8,7 @@ import jmarkov.MarkovProcess;
 import jmarkov.basic.PropertiesState;
 
 /**
- * This class allows to represent a State with a songle integer.
+ * This class allows to represent a State with a single integer.
  * It's used in many of the examples.
  * @author Germán Riaño, Andres Sarmiento. Universida de los Andes
  */
