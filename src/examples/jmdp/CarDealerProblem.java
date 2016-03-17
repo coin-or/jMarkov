@@ -1,5 +1,11 @@
 package examples.jmdp;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.DecimalFormat;
+
 import jmarkov.basic.Actions;
 import jmarkov.basic.ActionsSet;
 import jmarkov.basic.Event;
@@ -10,6 +16,7 @@ import jmarkov.basic.StatesSet;
 import jmarkov.basic.exceptions.SolverException;
 import jmarkov.jmdp.DTMDPEv;
 import jmarkov.jmdp.solvers.PolicyIterationSolver;
+import jmarkov.jmdp.solvers.PolicyIterationSolverAvg;
 import jmarkov.jmdp.solvers.RelativeValueIterationSolver;
 import jmarkov.jmdp.solvers.ValueIterationSolver;
 import Jama.Matrix;
@@ -211,12 +218,54 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
      * @throws SolverException
      */
     public static void main( String a [ ] ) throws SolverException {
-    	int maxInventory = 10; int truckSize = 4; double lambda = 7; double price = 1100; double cost = 500;
-    	double holdCost = 50; double truckCost = 800; double discFactor=0.9; 
-    	CarDealerProblem prob = new CarDealerProblem(maxInventory , truckSize , truckCost , 
-    			price , cost , holdCost, discFactor, lambda, false  );
-    	prob.setDebugLevel(3);
-    	prob.solve ( ) ;
-    	prob.printSolution ( ) ;
+    	boolean runOnce=false;
+    	if (runOnce){
+        	int maxInventory = 10; int truckSize = 4; double lambda = 7; double price = 1100; double cost = 500;
+        	double holdCost = 50; double truckCost = 800; double discFactor=0.9; 
+	    	CarDealerProblem prob = new CarDealerProblem(maxInventory , truckSize , truckCost , 
+	    			price , cost , holdCost, discFactor, lambda, false  );
+	    	prob.setDebugLevel(2);
+	    	prob.solve ( ) ;
+	    	prob.printSolution ( ) ;
+    	}
+    	else{
+        	int [] maxInventory = {10,50,100};//,500,1000,2000}; 
+        	int [] truckSize = {4,20,40,200};//,400,800}; 
+        	double [] lambda = {7,35,70,350};//,700,1400}; 
+        	double [] truckCost = {800,4000,8000};//,40000,80000,160000};
+        	double price = 1100, cost = 500, holdCost = 50, discFactor=0.9;
+        	double solValueDisc, solRelValue, solPolicyDisc, solPolicyAvg;
+        	double timeValueDisc, timeRelValue, timePolicyDisc, timePolicyAvg;
+        	String stg = "i \t maxInventory \t truckSize \t lambda \t truckCost \t solValueDisc \t solRelValue \t solPolicyDisc \t solPolicyAvg \t timeValueDisc \t timeRelValue \t timePolicyDisc \t timePolicyAvg\n";
+    		for (int i=0; i<=2; i++){
+    	    	CarDealerProblem prob = new CarDealerProblem(maxInventory[i], truckSize[i], truckCost[i], 
+    	    			price , cost , holdCost, discFactor, lambda[i], true  );
+    	    	ValueIterationSolver<InvLevel,Order> discValSolver= new ValueIterationSolver<InvLevel,Order>(prob, discFactor);
+    	    	prob.setSolver(discValSolver);
+    	    	prob.solve();
+    	    	solValueDisc= -discValSolver.getValueFunction().get()[0];
+    	    	timeValueDisc= discValSolver.getProcessTime();
+    	    	PolicyIterationSolver<InvLevel,Order> polDiscSolver= new PolicyIterationSolver<InvLevel,Order>(prob, discFactor);
+    	    	prob.setSolver(polDiscSolver);
+    	    	prob.solve();
+    	    	solPolicyDisc= -polDiscSolver.getValueFunction().get()[0];
+    	    	timePolicyDisc= polDiscSolver.getProcessTime();
+    	    	prob = new CarDealerProblem(maxInventory[i], truckSize[i], truckCost[i], 
+    	    			price , cost , holdCost, discFactor, lambda[i], false);
+       	    	RelativeValueIterationSolver<InvLevel,Order> relValSolver= new RelativeValueIterationSolver<InvLevel,Order>(prob);
+    	    	prob.setSolver(relValSolver);
+    	    	prob.solve();
+    	    	solRelValue= -relValSolver.getGain();
+    	    	timeRelValue= relValSolver.getProcessTime();
+    	    	PolicyIterationSolverAvg<InvLevel,Order> polAvgSolver= new PolicyIterationSolverAvg<InvLevel,Order>(prob);
+    	    	prob.setSolver(polAvgSolver);
+    	    	prob.solve();
+    	    	solPolicyAvg= -polAvgSolver.getGain();
+    	    	timePolicyAvg= polAvgSolver.getProcessTime();
+    	    	DecimalFormat df1 = new DecimalFormat("##.###");
+    	    	stg = stg + i +" \t" + maxInventory[i] +" \t"+ truckSize[i] + " \t" + lambda[i] +" \t"+ truckCost[i]+ " \t" +df1.format(solValueDisc) + " \t" + df1.format(solPolicyDisc) + " \t" + df1.format(solRelValue) + " \t" + df1.format(solPolicyAvg) + " \t" + df1.format(timeValueDisc/1000) + " \t" + df1.format(timeRelValue/1000) + " \t" + df1.format(timePolicyDisc/1000) + " \t" + df1.format(timePolicyAvg/1000) + "\n";
+    		}
+    	System.out.print(stg); 
+		}    	
     }
 }
