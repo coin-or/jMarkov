@@ -229,15 +229,15 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
 	    	prob.printSolution ( ) ;
     	}
     	else{
-        	int [] maxInventory = {10,50,100};//,500,1000,2000}; 
-        	int [] truckSize = {4,20,40,200};//,400,800}; 
-        	double [] lambda = {7,35,70,350};//,700,1400}; 
-        	double [] truckCost = {800,4000,8000};//,40000,80000,160000};
+        	int [] maxInventory = {10,50,100,500,1000,2000}; 
+        	int [] truckSize = {4,20,40,200,400,800}; 
+        	double [] lambda = {7,35,70,350,700,1400}; 
+        	double [] truckCost = {800,4000,8000,40000,80000,160000};
         	double price = 1100, cost = 500, holdCost = 50, discFactor=0.9;
         	double solValueDisc, solRelValue, solPolicyDisc, solPolicyAvg;
         	double timeValueDisc, timeRelValue, timePolicyDisc, timePolicyAvg;
         	String stg = "i \t maxInventory \t truckSize \t lambda \t truckCost \t solValueDisc \t solRelValue \t solPolicyDisc \t solPolicyAvg \t timeValueDisc \t timeRelValue \t timePolicyDisc \t timePolicyAvg\n";
-    		for (int i=0; i<=2; i++){
+    		for (int i=0; i<=5; i++){
     	    	CarDealerProblem prob = new CarDealerProblem(maxInventory[i], truckSize[i], truckCost[i], 
     	    			price , cost , holdCost, discFactor, lambda[i], true  );
     	    	ValueIterationSolver<InvLevel,Order> discValSolver= new ValueIterationSolver<InvLevel,Order>(prob, discFactor);
