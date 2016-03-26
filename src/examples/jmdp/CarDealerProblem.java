@@ -85,7 +85,7 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
         this.expDemand = expDemand;
         initializeProbabilities();
         this.isdisc = discounted;
-        this.intRate = 1/(1+discFactor);
+        this.intRate = 1/discFactor-1;
         if (discounted)
             setSolver(new ValueIterationSolver(this, intRate));
         else
