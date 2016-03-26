@@ -2,6 +2,7 @@ package jmarkov.jmdp;
 
 import jmarkov.basic.Action;
 import jmarkov.basic.Actions;
+import jmarkov.basic.ActionsSet;
 import jmarkov.basic.State;
 import jmarkov.basic.States;
 import jmarkov.basic.StatesSet;
@@ -17,7 +18,7 @@ import jmarkov.jmdp.solvers.ValueIterationSolver;
  * This class is a structural class. It represents a general
  * Infinite horizon MDP problem. It is extended for discrete and
  * continuous problems.
- * @author Andres Sarmiento, Germán Riaño - Universidad de Los Andes
+ * @author Daniel F. Silva, Andres Sarmiento, German Riano
  * @param <S> States class.
  * @param <A> Actions class.
  * @see jmarkov.jmdp.solvers.PolicyIterationSolver
@@ -43,6 +44,8 @@ public abstract class InfiniteMDP<S extends State, A extends Action> extends
     protected long explorationTime = 0;
     /** Number of states. Set when calling generate. */
     protected int numStates = -1;
+    /** Number of actions. */
+    protected int numActions = -1;
 
     //
     // constructors
@@ -153,6 +156,36 @@ public abstract class InfiniteMDP<S extends State, A extends Action> extends
         return states;
     }
 
+    /**
+     * Complete set of actions available in any state
+     * @return set of actions available in any state
+     */
+    public ActionsSet<A> getAllActions() {
+	    StatesSet<S> stts = getAllStates();
+	    ActionsSet<A> acts = new ActionsSet<A>();
+	    for(S s: stts){
+	    	for(A a: feasibleActions(s)){
+	    		acts.add(a);
+	    	}
+	    }
+	    numActions=acts.size();
+	    return acts;
+    }
+
+    
+    /**
+     * Returns the number of actions in the model. It causes the model
+     * to be generated.
+     * @return The number of actions in all states combined (union, not sum)
+     */
+    public final int getNumActions() {
+    	if (numStates == -1)
+    		generate();
+    	if (numActions == -1)
+            getAllActions();
+        return numActions;
+    }
+    
     /**
      * @return solver of the current problem
      */

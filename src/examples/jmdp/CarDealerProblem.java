@@ -43,7 +43,7 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
     // Problem parameters:
     private int maxInv, truckSize;
     // Cost and demand parameters:
-    private double truckCost, holdingCost, expDemand, price, cost, discountFactor;
+    private double truckCost, holdingCost, expDemand, price, cost, intRate;
     // Demand distribution information:
     private double[] demPMF, demCCDF, demandLoss1;
     private boolean isdisc = false;
@@ -85,9 +85,9 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
         this.expDemand = expDemand;
         initializeProbabilities();
         this.isdisc = discounted;
-        this.discountFactor = discFactor;
+        this.intRate = 1/(1+discFactor);
         if (discounted)
-            setSolver(new ValueIterationSolver(this, discountFactor));
+            setSolver(new ValueIterationSolver(this, intRate));
         else
             setSolver(new RelativeValueIterationSolver(this));
     }
@@ -210,6 +210,43 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
     double orderCost ( int x) {
     	return truckCost*Math. ceil ((double) x /truckSize ) + x * cost ;
     }
+    
+    /**
+     * Returns the full transition probability matrix
+     * @return 3-dimensional array of probabilities.
+     */
+    public final double[][][] getTheP(){
+    	StatesSet<InvLevel> stts = getAllStates();
+    	int numAct = getNumActions();
+        double[][][] P = new double[numStates][numStates][numAct];
+    	for(InvLevel i: stts){
+    		for(Order a:feasibleActions(i)){
+    			for(InvLevel j: reachable(i,a)){
+    				P[i.getLevel()][j.getLevel()][a.getSize()]=prob(i,j,a);
+    			}
+    		}
+    	}
+        return P;
+    }
+    
+    /**
+     * Returns the full transition probability matrix
+     * @return 3-dimensional array of probabilities.
+     */
+    public final double[][] getTheR(){
+    	StatesSet<InvLevel> stts = getAllStates();
+    	int numAct = getNumActions();
+    	double[][] R = new double[numStates][numAct];
+    	for (int k=0; k< numStates; k++)
+    		for (int h=0; h< numAct; h++)
+    			R[k][h]=100000000;
+    	for(InvLevel i: stts){
+    		for(Order a:feasibleActions(i)){
+    			R[i.getLevel()][a.getSize()]=immediateCost(i,a);
+    		}
+    	}
+        return R;
+    }
 
 
     /**
@@ -223,8 +260,12 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
         	int maxInventory = 10; int truckSize = 4; double lambda = 7; double price = 1100; double cost = 500;
         	double holdCost = 50; double truckCost = 800; double discFactor=0.9; 
 	    	CarDealerProblem prob = new CarDealerProblem(maxInventory , truckSize , truckCost , 
-	    			price , cost , holdCost, discFactor, lambda, false  );
+	    			price , cost , holdCost, discFactor, lambda, true);
 	    	prob.setDebugLevel(2);
+	    	//double [][][] P= prob.getTheP();
+	    	//double [][] R= prob.getTheR();
+	    	PolicyIterationSolver<InvLevel,Order> polDiscSolver= new PolicyIterationSolver<InvLevel,Order>(prob, discFactor);
+	    	prob.setSolver(polDiscSolver);
 	    	prob.solve ( ) ;
 	    	prob.printSolution ( ) ;
     	}
@@ -233,19 +274,19 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
         	int [] truckSize = {4,20,40,200,400,800}; 
         	double [] lambda = {7,35,70,350,700,1400}; 
         	double [] truckCost = {800,4000,8000,40000,80000,160000};
-        	double price = 1100, cost = 500, holdCost = 50, discFactor=0.9;
+        	double price = 1100, cost = 500, holdCost = 50, discFactor=0.9, intRate=1/discFactor-1;
         	double solValueDisc, solRelValue, solPolicyDisc, solPolicyAvg;
         	double timeValueDisc, timeRelValue, timePolicyDisc, timePolicyAvg;
-        	String stg = "i \t maxInventory \t truckSize \t lambda \t truckCost \t solValueDisc \t solRelValue \t solPolicyDisc \t solPolicyAvg \t timeValueDisc \t timeRelValue \t timePolicyDisc \t timePolicyAvg\n";
-    		for (int i=0; i<=5; i++){
+        	String stg = "i \t maxInventory \t truckSize \t lambda \t truckCost \t solValueDisc \t solPolicyDisc \t solRelValue \t solPolicyAvg \t timeValueDisc \t timePolicyDisc \t timeRelValue \t timePolicyAvg\n";
+        	for (int i=0; i<=5; i++){
     	    	CarDealerProblem prob = new CarDealerProblem(maxInventory[i], truckSize[i], truckCost[i], 
     	    			price , cost , holdCost, discFactor, lambda[i], true  );
-    	    	ValueIterationSolver<InvLevel,Order> discValSolver= new ValueIterationSolver<InvLevel,Order>(prob, discFactor);
+    	    	ValueIterationSolver<InvLevel,Order> discValSolver= new ValueIterationSolver<InvLevel,Order>(prob, intRate);
     	    	prob.setSolver(discValSolver);
     	    	prob.solve();
     	    	solValueDisc= -discValSolver.getValueFunction().get()[0];
     	    	timeValueDisc= discValSolver.getProcessTime();
-    	    	PolicyIterationSolver<InvLevel,Order> polDiscSolver= new PolicyIterationSolver<InvLevel,Order>(prob, discFactor);
+    	    	PolicyIterationSolver<InvLevel,Order> polDiscSolver= new PolicyIterationSolver<InvLevel,Order>(prob, intRate);
     	    	prob.setSolver(polDiscSolver);
     	    	prob.solve();
     	    	solPolicyDisc= -polDiscSolver.getValueFunction().get()[0];
@@ -263,8 +304,9 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
     	    	solPolicyAvg= -polAvgSolver.getGain();
     	    	timePolicyAvg= polAvgSolver.getProcessTime();
     	    	DecimalFormat df1 = new DecimalFormat("##.###");
-    	    	stg = stg + i +" \t" + maxInventory[i] +" \t"+ truckSize[i] + " \t" + lambda[i] +" \t"+ truckCost[i]+ " \t" +df1.format(solValueDisc) + " \t" + df1.format(solPolicyDisc) + " \t" + df1.format(solRelValue) + " \t" + df1.format(solPolicyAvg) + " \t" + df1.format(timeValueDisc/1000) + " \t" + df1.format(timeRelValue/1000) + " \t" + df1.format(timePolicyDisc/1000) + " \t" + df1.format(timePolicyAvg/1000) + "\n";
-    		}
+    	    	stg = stg + i +" \t" + maxInventory[i] +" \t"+ truckSize[i] + " \t" + lambda[i] +" \t"+ truckCost[i]+ " \t" +df1.format(solValueDisc) + " \t" + df1.format(solPolicyDisc) + " \t" + df1.format(solRelValue) + " \t" + df1.format(solPolicyAvg) + " \t" + df1.format(timeValueDisc/1000) +  " \t" + df1.format(timePolicyDisc/1000) + " \t" + df1.format(timeRelValue/1000) +" \t" + df1.format(timePolicyAvg/1000) + "\n";
+    	    	System.out.print(stg);
+    	    }
     	System.out.print(stg); 
 		}    	
     }
