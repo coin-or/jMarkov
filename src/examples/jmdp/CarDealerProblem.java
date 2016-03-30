@@ -271,7 +271,7 @@ public class CarDealerProblem extends DTMDPEv<InvLevel, Order, DemandEvent> {
     	}
     	else{
         	int [] maxInventory = {10,50,100,150,200};//,1000,2000}; 
-        	int [] truckSize = {4,20,40,150,80};//,400,800}; 
+        	int [] truckSize = {4,20,40,60,80};//,400,800}; 
         	double [] lambda = {7,35,70,105,140};//,700,1400}; 
         	double [] truckCost = {800,4000,8000,12000,16000};//,80000,160000};
         	double price = 1100, cost = 500, holdCost = 50, discFactor=0.9, intRate=1/discFactor-1;
