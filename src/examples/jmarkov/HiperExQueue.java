@@ -15,7 +15,7 @@ import jphase.PhaseVar;
 /**
  * This class implements a system with one server with PH
  * service. The server has an infinite capacity.
- * @author Julio C. Goez - Germán Riaño. Universidad de los Andes.
+ * @author Julio C. Goez - German Riano. Universidad de los Andes.
  */
 public class HiperExQueue extends
         GeomProcess<HiperExQueueState, HiperExQueueEvent> {
@@ -190,13 +190,13 @@ public class HiperExQueue extends
 
 /**
  * This class defines the events in the queue.
- * @author Julio Goez - German Riaño
+ * @author Julio Goez - German Riaï¿½o
  */
 class HiperExQueueEvent extends Event {
 
     /**
      * Enumeration of all posible events
-     * @author Julio Goez - German Riaño. Universidad de los Andes.
+     * @author Julio Goez - German Riaï¿½o. Universidad de los Andes.
      *         (C) 2006
      */
     public enum Type {
