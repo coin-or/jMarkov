@@ -16,7 +16,7 @@ import jmarkov.basic.StatesSet;
  * This class represents a system with 2 different exponential
  * servers with rates mu1 and mu2, respectively, and arrival rate
  * lambda.
- * @author Germán Riaño. Universidad de los Andes.
+ * @author German Riano. Universidad de los Andes.
  */
 
 public class QueueMM2dN extends SimpleMarkovProcess<MM2dNState, QMM2dNEvent> {
@@ -40,7 +40,8 @@ public class QueueMM2dN extends SimpleMarkovProcess<MM2dNState, QMM2dNEvent> {
      *        server 1 (if both idle)
      * @param N Max number in the system
      */
-    public QueueMM2dN(double lambda, double mu1, double mu2, double alpha, int N) {
+    public QueueMM2dN(double lambda, double mu1, 
+    		double mu2, double alpha, int N) {
         super((new MM2dNState(0, 0, 0)), //
                 QMM2dNEvent.getAllEvents()   ); // num Events
         this.lambda = lambda;
@@ -75,7 +76,6 @@ public class QueueMM2dN extends SimpleMarkovProcess<MM2dNState, QMM2dNEvent> {
         case ARRIVAL2:
             result = i.isEmpty();
             break;
-
         case DEPARTURE1:
             result = (i.getStatus1() > 0);
             break;
@@ -196,7 +196,7 @@ public class QueueMM2dN extends SimpleMarkovProcess<MM2dNState, QMM2dNEvent> {
 /**
  * This is a particular case of propertiesState, whith three
  * properties, namely the server 1 and 2 status, plus the queue level.
- * @author Germán Riaño. Universidad de los Andes.
+ * @author German Riano. Universidad de los Andes.
  */
 
 class MM2dNState extends PropertiesState {
@@ -219,7 +219,8 @@ class MM2dNState extends PropertiesState {
         setMOP(mp, "Status Server 1", getStatus1());
         setMOP(mp, "Status Server 2", getStatus2());
         setMOP(mp, "Queue Length", getQSize());
-        setMOP(mp, "Number in System", getStatus1() + getStatus2() + getQSize());
+        setMOP(mp, "Number in System", getStatus1() + 
+        		getStatus2() + getQSize());
     }
 
     /**
