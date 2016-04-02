@@ -1,4 +1,3 @@
-% -*- TeX:Soft -*-
 % JMarkov User's Guide by Riano and Goez
 
 \documentclass[11pt,letterpaper]{article}
@@ -9,31 +8,20 @@
 \usepackage{algorithmic}
 \usepackage{listings}
 \usepackage{cite}
-%\usepackage{flafter}
 \usepackage{xspace}
 \usepackage[T1]{fontenc}
 \usepackage[latin5]{inputenc}
-
-%\usepackage{amsfonts}
-%\usepackage{optprog}
 \usepackage{color}
 \usepackage{makeidx}
-%\usepackage{flafter}% Causes floats to show AFTER cited
 \usepackage{epstopdf}
 \usepackage{xspace}
 \usepackage[breaklinks]{hyperref}
-
-
+\usepackage{moresize}
 
 \definecolor{darkgreen}{rgb}{0.00,0.50,0.25}
-
-\title{jMarkov User's Guide}
-\author{  Germ\'an Ria\~no and Julio Góez  \\
-Universidad de Los Andes}
-\date{}
+\definecolor{purple}{rgb}{0.40,0.00,0.45}
 
 \newcommand {\cA}{\ensuremath \mathcal{A}}
-%\newcommand {\cS}{\ensuremath \mathcal{S}}
 \newcommand {\lil}{\lstinline}
 \DeclareMathOperator*{\argmax}{argmax}
 \newtheorem{rem}{Remark}
@@ -68,7 +56,6 @@ Universidad de Los Andes}
 \newcommand{\cD}{{\cal D}}
 \newcommand{\cW}{{\cal W}}
 \newcommand{\cL}{{\cal L}}
-%\newcommand{\dref}[1]{\refdefined{#1}}
 \renewcommand{\Pr}[1]{P\left\{#1\right\}}
 \newcommand{\bx}{\mathbf{x}}
 \newcommand{\bu}{\mathbf{u}}
@@ -82,35 +69,24 @@ Universidad de Los Andes}
 \newcommand\MarkovProcess{\texttt{Markov\-Pro\-cess}\xspace}
 \newcommand\GeomProcess{\texttt{Geom\-Pro\-cess}\xspace}
 
-\newenvironment{javacode}
-    {\begin{lstlisting}}
-    {\end{lstlisting}}
-
-
-
 \lstset{
-  basicstyle=\small,
-  language=java,
-  frame=single,
-  tabsize=2,
-  showstringspaces=false,
-  morecomment=[s][\color{darkgreen}]{/*}{*/},
-  morecomment=[l][\color{darkgreen}]{//},
-  morecomment=[s][\color{blue}]{/**}{*/},
-  morestring=[d][\color{blue}]{"}
+    basicstyle=\ssmall,
+    language=java,
+    frame=single,
+    keywordstyle=\color{purple}\bfseries,
+    morestring=[d][\color{blue}]{"},
+    numbers=left,
+  	firstnumber=1,
+  	numberfirstline=true,
 }
 
 
-%\textcolor[rgb]{0.00,0.50,0.25}{}
+\newcommand{\srcbase}[1]{../../../src/examples/jmarkov/#1}
+
 \newcommand{\lstinclude}[2][]{
   \lstset{title={\Large{File #2}},basicstyle=\small}
   \lstinputlisting[#1]{../../../src/examples/jmarkov/#2}
 }
-
-
-%\lstset{language=[AspectJ]Java, basicstyle=\small,
-%commentstyle=\footnotesize,
-%tabsize=2,frame=single, breakautoindent=true}
 
 \setlength{\oddsidemargin}{0pt} \setlength{\textwidth}{6.5in}
 \setlength{\marginparsep}{0pt} \addtolength{\voffset}{-.8in}
@@ -118,16 +94,23 @@ Universidad de Los Andes}
 \makeindex
 
 \begin{document}
-%\renewcommand{\includegraphics}[2][]{\framebox{File #2.eps Missing!}}
+
+\title{jMarkov User's Guide}
+\author{  Germ\'an Ria\~no and Julio G\'oez  \\
+Universidad de Los Andes}
+\date{}
 
 \maketitle
 \tableofcontents
 
 \section{Introduction}
 
-The jMarkov project has been in development since 2002 by the research grup COPA at Universidad de los Andes.
+The jMarkov project has been in development since 2002 by the research grup COPA
+at Universidad de los Andes.
 
-The main purpose of jMarkov is facilitating the development and application of large sacale Markovian models, so that they can be used by engineers with basic programming and stochastic skills.
+The main purpose of jMarkov is facilitating the development and application of
+large sacale Markovian models, so that they can be used by engineers with basic
+programming and stochastic skills.
 
 The project is composed by four modules
 \begin{itemize}
@@ -137,95 +120,83 @@ The project is composed by four modules
 	\item jMDP
 \end{itemize}
 
-In this manual we explain jMarkov and jQBD, which are used to build Markov Chains and Quasi-Birth and death processes (QBD)\index{QBD}\index{Quasi-Birth and Death Processes}. The other two modules have their own manulas. 
+In this manual we explain jMarkov and jQBD, which are used to build Markov
+Chains and Quasi-Birth and death processes (QBD)\index{QBD}\index{Quasi-Birth
+  and Death Processes}. The other two modules have their own manulas.
 
-With jPhase a  user can easily manipulate Phase-Type distributions (PH)\index{PH}\index{Phase-Type Distributions}. These distibutions are quite flexible and powerful, and a model that is limited to PH in practical terms can model many situations. For details see \cite{pere.rian:jphaseMan} and \cite{pere.rian:jphase}
+With jPhase a user can easily manipulate Phase-Type distributions
+(PH)\index{PH}\index{Phase-Type Distributions}. These distibutions are quite
+flexible and powerful, and a model that is limited to PH in practical terms can
+model many situations. For details see \cite{pere.rian:jphaseMan} and
+\cite{pere.rian:jphase}
 
 
-jMDP is used to build and solve Markov Decision Process (MDP)\index{MDP}\index{Markov Decision Processes}.%
-MDP, or, as is often called, Probabilistic Dynamic Programming allows the analyst to design optimal control rules for a Markov Chain.%
-jMDP works for discrete  and continous time MDPs.%
-For details see \cite{sarm.rian:jmdpMan} and \cite{rian.sarm:jmdp}
+jMDP is used to build and solve Markov Decision Process
+(MDP)\index{MDP}\index{Markov Decision Processes}.  MDP, or, as is often called,
+Probabilistic Dynamic Programming allows the analyst to design optimal control
+rules for a Markov Chain.  jMDP works for discrete and continous time MDPs.  For
+details see \cite{sarm.rian:jmdpMan} and \cite{rian.sarm:jmdp}
 
 For up-to date information, downloads and examples check COPA's web page at
 \url{copa.uniandes.edu.co}.
 
 \section{Building Large - Scale Markov Chains} \label{sec:BuildRS}
 
-In this section, we will describe the basic algorithms
-used by jMarkov to build Markov Chains. %
-Although we limit our description to Continuous Time Markov Chain
-(CTMC){\index{CTMC}, jMarkov can handle also Discrete Time Markov Chains
+In this section, we will describe the basic algorithms used by jMarkov to build
+Markov Chains.  Although we limit our description to Continuous Time Markov
+Chain (CTMC)\index{CTMC}, jMarkov can handle also Discrete Time Markov Chains
 (DT\-MC)\index{DTMC}.
 
 Let $\{ X(t),  t \geq 0 \}$ be a CTMC, with finite space state
 $\cS$ and generator matrix $\bQ$\index{Generator Matrix}, with components
-\[ q_{ij} = \lim_{t\downarrow 0} \Pr{X(t)=j | X(0)=i} \quad
-i,j\in\cS.\] %
-It is well known that this generator matrix, along
-with the initial conditions,  completely determines the transient
-and stationary behavior of the Markov Chain (see, e.g,
-\cite{kulk95}). %
-The diagonal components $q_{ii}$ are non-positive and represent
-the exponential holding rate for state $i$, whereas the off
-diagonal elements $q_{ij}$ represent the transition rate from
-state $i$ to state $j$.
+\[ q_{ij} = \lim_{t\downarrow 0} \Pr{X(t)=j | X(0)=i} \quad i,j\in\cS.\]
+It is well known that this generator matrix, along with the initial conditions,
+completely determines the transient and stationary behavior of the Markov Chain
+(see, e.g, \cite{kulk95}).  The diagonal components $q_{ii}$ are non-positive
+and represent the exponential holding rate for state $i$, whereas the off
+diagonal elements $q_{ij}$ represent the transition rate from state $i$ to state
+$j$.
 
-The transient behavior of the system is described by the matrix
-$\bP(t)$ with components
-\[ p_{ij}(t) =\Pr{X(t+s)=j|X(s)=i} \quad i,j\in\cS. \] %
+The transient behavior of the system is described by the matrix $\bP(t)$ with
+components
+\[ p_{ij}(t) =\Pr{X(t+s)=j|X(s)=i} \quad i,j\in\cS. \]
 This matrix can be computed as
 \[ \bP(t) = e^{\bQ t} \quad t>0.\] %
 For an irreducible chain, the stationary distribution
-$\bpi=[\pi_1,\pi_2,\ldots,]$ is determined as the solution to the
-following system of equations
+$\bpi=[\pi_1,\pi_2,\ldots,]$ is determined as the solution to the following
+system of equations
 \begin{gather*}
 \bpi \bQ = \zero\\
 \bpi\one = 1,
 \end{gather*}
 where $\one$ is a column vector of ones.
 
-
-
 \subsection{Space state building algorithm}
 \label{sec:SpaceStateBuildingAlgorithm}
 
-Transitions in a CTMC are triggered by the occurrence of events such
-as arrivals and departures. %
-The matrix $\bQ$ can be decomposed as
-$\bQ =\sum_{e\in\cE}\bQ^{(e)}$, where $\bQ^{(e)}$ contains the
-transition rates associated with event $e$, and $\cE$ is the set of all
-possible events that may occur. %
-In large systems, it is not easy to know
-in advance how many states there are in the model. %
-However, it is
-possible to determine what events occur in every state, and the
-destination states produced by each transition when it occurs. %
-jMarkov works based on this observation, using an algorithm
-similar to the algorithm buildRS presented by Ciardo
-\cite{ciar00}; see Figure \ref{Algt:BuildRS}. %
-The algorithm builds
-the space state and the transition rate by a deep exploration of
-the graph. It starts with an initial state $i_0$ and searches for
-all other states. %
-At every instant, it keeps a set of ``unchecked'' states $\cU$ and
-the set of states $\cS$ that have been already checked. %
-For every unchecked state the algorithm finds the possible
-destinations and, if they had not been previously found, they are
-added to the $\cU$ set. %
-To do this, it first calls the function \Active\index{\Active} that
-determines if an event can occur. %
-If it does, then the possible destination states are found by
-calling the function \Dests\index{\Dests}. %
-The transition rate is determined by
-calling the function \Rate\index{\Rate}. %
-From this algorithm, we can see that a system is fully described
-once the states and events are defined and the functions \Active,
-\Dests, and \Rate have been specified. %
-As we will see, modeling a problem with jMarkov entails coding
-these three functions.
-
-
+Transitions in a CTMC are triggered by the occurrence of events such as arrivals
+and departures.  The matrix $\bQ$ can be decomposed as
+$\bQ =\sum_{e\in\cE}\bQ^{(e)}$, where $\bQ^{(e)}$ contains the transition rates
+associated with event $e$, and $\cE$ is the set of all possible events that may
+occur.  In large systems, it is not easy to know in advance how many states
+there are in the model.  However, it is possible to determine what events occur
+in every state, and the destination states produced by each transition when it
+occurs.  jMarkov works based on this observation, using an algorithm similar to
+the algorithm buildRS presented by Ciardo \cite{ciar00}; see Figure
+\ref{Algt:BuildRS}.  The algorithm builds the space state and the transition
+rate by a deep exploration of the graph. It starts with an initial state $i_0$
+and searches for all other states.  At every instant, it keeps a set of
+``unchecked'' states $\cU$ and the set of states $\cS$ that have been already
+checked.  For every unchecked state the algorithm finds the possible
+destinations and, if they had not been previously found, they are added to the
+$\cU$ set.  To do this, it first calls the function \Active\index{\Active} that
+determines if an event can occur.  If it does, then the possible destination
+states are found by calling the function \Dests\index{\Dests}.  The transition
+rate is determined by calling the function \Rate\index{\Rate}.  From this
+algorithm, we can see that a system is fully described once the states and
+events are defined and the functions \Active, \Dests, and \Rate have been
+specified.  As we will see, modeling a problem with jMarkov entails coding these
+three functions.
 
 \begin{figure}[htb]
 \begin{algorithmic}
@@ -247,71 +218,59 @@ these three functions.
 \caption{BuildRS algorithm} \label{Algt:BuildRS}
 \end{figure}
 
-
-
 \subsection{Measures of Performance}
 \label{sec:MOPs}
 
-When studying Markovian systems, the analyst is usually interested
-in the transient and steady state behavior of measures of performance (MOPs). %
-This is accomplished by attaching rewards to the model. %
-Let $\br$ be a column vector such that $r(i)$ represents the expected
-rate at which the system receives rewards whenever it is in state $i\in\cS$. %
-Here the term \emph{reward} is used for any measure of performance that might
-be of interest, not necessarily monetary. %
-For example, in queueing systems $r(i)$ might represent the number
-of entities in the system,or the number of busy servers, when the state is $i$.  %
+When studying Markovian systems, the analyst is usually interested in the
+transient and steady state behavior of measures of performance (MOPs).  This is
+accomplished by attaching rewards to the model.  Let $\br$ be a column vector
+such that $r(i)$ represents the expected rate at which the system receives
+rewards whenever it is in state $i\in\cS$.  Here the term \emph{reward} is used
+for any measure of performance that might be of interest, not necessarily
+monetary.  For example, in queueing systems $r(i)$ might represent the number of
+entities in the system,or the number of busy servers, when the state is $i$.
 The expected reward rate at time $t$ is computed according to
 \[ E\big(r(X(t)\big) = \ba\bP(t)\br,\]
-where the row vector $\ba$ has the initial conditions of the process
-(i.e., $a_i=\Pr{X(0)=i},i\in\cS$). %
-Similarly, for an irreducible CTMC, the long run rate at which the
-system receives rewards is calculated as
+where the row vector $\ba$ has the initial conditions of the process (i.e.,
+$a_i=\Pr{X(0)=i},i\in\cS$).  Similarly, for an irreducible CTMC, the long run
+rate at which the system receives rewards is calculated as
 \[\lim_{t\rightarrow\infty} \frac1t\int_0^t E\big(r(X(s)\big) ds = \bpi
-\br.\] %
-As we will see, jMarkov provides mechanisms to define this type of
-rewards and can compute both, transient and steady state MOPs. %
-There are other type of rewards, like expected time in the system,
-which can be easily computed using Little law.
+\br.\]
+As we will see, jMarkov provides mechanisms to define this type of rewards and
+can compute both, transient and steady state MOPs.  There are other type of
+rewards, like expected time in the system, which can be easily computed using
+Little law.
 
 
 \section{Framework Design}\label{sec:Design}
-In this section, we give a brief description of jMarkov's
-framework architecture. %
-We start by describing object-ori\-ented programming and
-then describe the three packages that compose jMarkov.
+In this section, we give a brief description of jMarkov's framework
+architecture.  We start by describing object-ori\-ented programming and then
+describe the three packages that compose jMarkov.
 
 
 \subsection{Java and Object Oriented Programming}\label{sec:OOP}
 
 
-Java is a programming language created by Sun Microsystems \cite{sun06}. %
-The main characteristics that Sun intended to have in Java are:
-Object-Oriented, robust, secure, architecture neutral, portable,
-high performance, interpreted, threa\-ded and dynamic.
+Java is a programming language created by Sun Microsystems \cite{sun06}.  The
+main characteristics that Sun intended to have in Java are: Object-Oriented,
+robust, secure, architecture neutral, portable, high performance, interpreted,
+threa\-ded and dynamic.
 
-Object-Oriented Programming \index{Object Oriented Programming}
-(OOP)\index{OOP} is not a new idea. %
-However, it did not have an increased
-development until recently. %
-OOP is based on four key principles:
-abstraction, encapsulation, inheritance and polymorphism. An
-excellent explanation of OOP and the Java programming language can
-be found in \cite{lind04}.
+Object-Oriented Programming \index{Object Oriented Programming} (OOP)\index{OOP}
+is not a new idea.  However, it did not have an increased development until
+recently. OOP is based on four key principles: abstraction, encapsulation,
+inheritance and polymorphism. An excellent explanation of OOP and the Java
+programming language can be found in \cite{lind04}.
 
-The abstraction capability is the one that interests us most. %
-Java allows us to define abstract types like \MarkovProcess,
-\texttt{State}, etc. %
-We can also define \emph{abstract} functions like
-\texttt{active}, and \texttt{dests}. %
-We can program the algorithm in terms of these abstract objects
-and functions and the program works independently of the
-particular implementation of the aforementioned elements. %
-All the user has to do is to \textit{implement} the abstract
-functions. %
-What is particularly nice is that if a function is declared as
-abstract, then the compiler itself will force the user to
-implement it before she attempts to run the model.
+The abstraction capability is the one that interests us most.  Java allows us to
+define abstract types like \MarkovProcess, \texttt{State}, etc.  We can also
+define \emph{abstract} functions like \texttt{active}, and \texttt{dests}.  We
+can program the algorithm in terms of these abstract objects and functions and
+the program works independently of the particular implementation of the
+aforementioned elements.  All the user has to do is to \textit{implement} the
+abstract functions.  What is particularly nice is that if a function is declared
+as abstract, then the compiler itself will force the user to implement it before
+she attempts to run the model.
 
 
 \begin{figure*}[bt]
@@ -322,13 +281,12 @@ implement it before she attempts to run the model.
 
 \subsection{Build Package}\label{sc:BuildModule}
 
-The build package is the main one in jMarkov since it contains
-the classes that take care of building the state space and transition matrices. %
-The main classes are \MarkovProcess, \SimpleMarkovProcess,
-and \GeomProcess (see Figure \ref{fg:BuildModuleDiag}). %
-Wher\-eas the first two allow to model general Markov processes, \GeomProcess is
-used for Quasi-Birth and Death Processes (QBD) and its description
-is given in Section \ref{sec:QBDmodule} below.
+The build package is the main one in jMarkov since it contains the classes that
+take care of building the state space and transition matrices.  The main classes
+are \MarkovProcess, \SimpleMarkovProcess, and \GeomProcess (see Figure
+\ref{fg:BuildModuleDiag}).  Wher\-eas the first two allow to model general
+Markov processes, \GeomProcess is used for Quasi-Birth and Death Processes (QBD)
+and its description is given in Section \ref{sec:QBDmodule} below.
 
 \begin{figure}[htb]
   % Requires \usepackage{graphicx}
@@ -337,45 +295,35 @@ is given in Section \ref{sec:QBDmodule} below.
 \end{figure}
 
 The class \SimpleMarkovProcess represents a Markov cha\-in process, and contains
-three abstract methods that implement the three aforementioned functions
-in the algorithm BuildRS: \Active, \Dests, and \Rate. %
-In order to model a problem the user has to extend this class and
-implement the three functions. %
-An example is given in Section \ref{sec:Usage}. %
-The class \MarkovProcess is the main class in the module, and
-provides a more general mechanism to describe the dynamics of the
-system. %
-It also contains tools to communicate with the solvers to
-compute steady state and transient solutions, and print them in a
-diverse array of ways. %
+three abstract methods that implement the three aforementioned functions in the
+algorithm BuildRS: \Active, \Dests, and \Rate.  In order to model a problem the
+user has to extend this class and implement the three functions.  An example is
+given in Section \ref{sec:Usage}.  The class \MarkovProcess is the main class in
+the module, and provides a more general mechanism to describe the dynamics of
+the system.  It also contains tools to communicate with the solvers to compute
+steady state and transient solutions, and print them in a diverse array of ways.
 For details, see \cite{rian.goez:jmarkovManual}.
-
 
 \subsection{Basic Package}\label{sc:BasicModule}
 
-
-This package contains the building blocks needed to describe a Markov Chain. %
-It contains classes such as \texttt{State}, and \texttt{Event}, which allow
-the user to code a description of the states and events, respectively
-(see Figure \ref{fg:basicModuleDiag}). %
-The user has freedom to choose any particular coding that best
-describes the states in her model, like any combination of integers, strings, etc. %
-However, she must establish a complete ordering among the elements since,
-for efficiency, jMarkov works with ordered sets. %
-For simplicity, however, a built-in class is provided,
-called \texttt{PropertiesState}, that describes the state with
-an array of integers, something which is quite appropriate for many applications. %
-Similarly, there is an analogous class called \texttt{PropertiesEvent}. %
-The package also contains the classes \texttt{States} and \texttt{Events}
-that are used to describe collections of states and events. %
-These are fairly general classes, since all that is required from
-the user is to provide a mechanism to ``walk through'' the elements of
-the set, taking advantage of Java iterator mechanism. %
-This implies that, for large sets, there is no need to
-generate (and store) all the elements in the set. %
-For convenience, the package provides  implementations of these
-set classes based on sorted sets classes available in Java.
-
+This package contains the building blocks needed to describe a Markov Chain.  It
+contains classes such as \texttt{State}, and \texttt{Event}, which allow the
+user to code a description of the states and events, respectively (see Figure
+\ref{fg:basicModuleDiag}).  The user has freedom to choose any particular coding
+that best describes the states in her model, like any combination of integers,
+strings, etc.  However, she must establish a complete ordering among the
+elements since, for efficiency, jMarkov works with ordered sets.  For
+simplicity, however, a built-in class is provided, called
+\texttt{PropertiesState}, that describes the state with an array of integers,
+something which is quite appropriate for many applications.  Similarly, there is
+an analogous class called \texttt{PropertiesEvent}.  The package also contains
+the classes \texttt{States} and \texttt{Events} that are used to describe
+collections of states and events.  These are fairly general classes, since all
+that is required from the user is to provide a mechanism to ``walk through'' the
+elements of the set, taking advantage of Java iterator mechanism.  This implies
+that, for large sets, there is no need to generate (and store) all the elements
+in the set.  For convenience, the package provides implementations of these set
+classes based on sorted sets classes available in Java.
 
 \begin{figure}[htb]
     \centering
@@ -383,26 +331,21 @@ set classes based on sorted sets classes available in Java.
   \caption{Class diagram for the basic package}\label{fg:basicModuleDiag}
 \end{figure}
 
-
 \subsection{The Solvers Package}\label{sec:SolversModule}
 
-As stated above, jMarkov separates modeling from solving. %
-Various solvers are provided to find steady-state and
-transient probabilities (see Figure \ref{fg:SolversModuleDiag}). %
-If the user does not specify the solver to use, one is provided by default. %
-However, the architecture is flexible enough to allow an interested
-user to choose a different solver, or, if she desires, to implement her own. %
-The basic class is called \texttt{Solver}, that has two sub-classes
-called \texttt{Steady\-State\-Solver}, \texttt{Transient\-Solver},
-and \texttt{Geom\-Solver} (see Figure \ref{fg:SolversModuleDiag}). %
-As the names indicate, the first two provide solvers for steady
-state and transient probabilities, whereas the latter is used
-for QBDs, as explained in section \ref{sec:QBD}. %
-The implementations provided relay on two popular Java packages to
-handle matrix operations JAMA~\cite{hick.clev.ea05} and MTJ~\cite{Heim05}, for
-dense and sparse matrices, respectively.
-
-
+As stated above, jMarkov separates modeling from solving.  Various solvers are
+provided to find steady-state and transient probabilities (see Figure
+\ref{fg:SolversModuleDiag}).  If the user does not specify the solver to use,
+one is provided by default.  However, the architecture is flexible enough to
+allow an interested user to choose a different solver, or, if she desires, to
+implement her own.  The basic class is called \texttt{Solver}, that has two
+sub-classes called \texttt{Steady\-State\-Solver}, \texttt{Transient\-Solver},
+and \texttt{Geom\-Solver} (see Figure \ref{fg:SolversModuleDiag}).  As the names
+indicate, the first two provide solvers for steady state and transient
+probabilities, whereas the latter is used for QBDs, as explained in section
+\ref{sec:QBD}.  The implementations provided relay on two popular Java packages
+to handle matrix operations JAMA~\cite{hick.clev.ea05} and MTJ~\cite{Heim05},
+for dense and sparse matrices, respectively.
 
 \begin{figure}[htb]
     \centering
@@ -410,30 +353,25 @@ dense and sparse matrices, respectively.
   \caption{Class diagram of the solvers package}\label{fg:SolversModuleDiag}
 \end{figure}
 
-
-
 \section{Examples}
 
 \subsection{Example: An  M/M/2/N with different servers}
 
-Assume that a system has Poisson arrivals with rate $\lambda$.
-There are two exponential servers with rates $\mu_1$ and $\mu_2$
-respectively. There is a maximum of $N$ customers in the system.
-An arriving customer that finds the system empty will go to server
-1 with probability $\alpha$. Otherwise he will pick he first
-available server, or join a single FCFS queue. If there are $N$ in
+Assume that a system has Poisson arrivals with rate $\lambda$.  There are two
+exponential servers with rates $\mu_1$ and $\mu_2$ respectively. There is a
+maximum of $N$ customers in the system.  An arriving customer that finds the
+system empty will go to server 1 with probability $\alpha$. Otherwise he will
+pick he first available server, or join a single FCFS queue. If there are $N$ in
 the system the customer goes away.
 
 \subsubsection{The model}
-\newcommand{\bX}{\ensuremath{\mathbf X}}
-We model this system with the triple $\bX(t) = (X(t),Y(t),Z(t))$,
-where $X(t)$ and $Y(t)$ represents the status of the server (1 if
-busy 0 otherwise) and $Z(t)$ represents the number in queue, which
-is a number from 0 to $N-2$. There are $2 \times 2\times N-2$
-potential states, however not all combinations of $X,Y$ and $Z$
-are possible. For example the state $(0,1,2)$ is not acceptable
-since we assume that a server will not be idle if there are people
-in the queue. The set of states will be of the form
+\newcommand{\bX}{\ensuremath{\mathbf X}} We model this system with the triple
+$\bX(t) = (X(t),Y(t),Z(t))$, where $X(t)$ and $Y(t)$ represents the status of
+the server (1 if busy 0 otherwise) and $Z(t)$ represents the number in queue,
+which is a number from 0 to $N-2$. There are $2 \times 2\times N-2$ potential
+states, however not all combinations of $X,Y$ and $Z$ are possible. For example
+the state $(0,1,2)$ is not acceptable since we assume that a server will not be
+idle if there are people in the queue. The set of states will be of the form
 \[\cS=\{(0,0,0),(0,1,0),(1,0,0)\} \cup \{(1,1,k): k=
 0,1,\ldots,N-2\}\]
 
@@ -443,61 +381,62 @@ The transition matrix will have the form
 % Table generated by LaTeXcel from sheet 'Sheet1'
 \begin{tabular}{r|r|r|r|r|r|r|r|r|r|}
 
-                &             000 &             010 &             100 &             110 &             111 &             112 &        $\ldots$ &         1,1,N-3 &         1,1,N-2 \\
+         &     000 &             010 &             100 &      110  &             111 &             112 &        $\ldots$ &         1,1,N-3 &        1,1,N-2 \\
 \cline{2-10}
-            000 &                 & $\lambda\alpha$ & $\lambda(1-\alpha)$ &                 &                 &                 &                 &                 &                 \\
+     000 &         & $\lambda\alpha$ & $\lambda(1-\alpha)$ &                 &                 &                 &                 &                 &                 \\
 \cline{2-10}
-            010 &         $\mu_2$ &                 &                 &       $\lambda$ &                 &                 &                 &                 &                 \\
+     010 & $\mu_2$ &                 &                 & $\lambda$ &                 &                 &                 &                 &                 \\
 \cline{2-10}
-            100 &         $\mu_1$ &                 &                 &       $\lambda$ &                 &                 &                 &                 &                 \\
+     100 & $\mu_1$ &                 &                 & $\lambda$ &                 &                 &                 &                 &                 \\
 \cline{2-10}
-            110 &                 &         $\mu_1$ &         $\mu_2$ &                 &       $\lambda$ &                 &                 &                 &                 \\
+     110 &         &         $\mu_1$ &         $\mu_2$ &           &       $\lambda$ &                 &                 &                 &                 \\
 \cline{2-10}
-            111 &                 &                 &                 &                 &                 &       $\lambda$ &                 &                 &                 \\
+     111 &         &                 &                 &           &                 &       $\lambda$ &                 &                 &                 \\
 \cline{2-10}
-            112 &                 &                 &                 &                 &   $\mu_1+\mu_2$ &                 &                 &                 &                 \\
+     112 &         &                 &                 &           &   $\mu_1+\mu_2$ &                 &                 &                 &                 \\
 \cline{2-10}
-       $\vdots$ &                 &                 &                 &                 &                 &                 &                 &                 &                 \\
+$\vdots$ &         &                 &                 &           &                 &                 &                 &                 &                 \\
 \cline{2-10}
-        1,1,N-3 &                 &                 &                 &                 &                 &                 &                 &                 &       $\lambda$ \\
+ 1,1,N-3 &         &                 &                 &           &                 &                 &                 &                 &       $\lambda$ \\
 \cline{2-10}
-        1,1,N-2 &                 &                 &                 &                 &                 &                 &                 &   $\mu_1+\mu_2$ &                 \\
+ 1,1,N-2 &         &                 &                 &           &                 &                 &                 &   $\mu_1+\mu_2$ &                 \\
 \cline{2-10}
 \end{tabular}
 
+\subsubsection{Class MM2dNState}
 
+Our characterization of each state fits nicely as a particular case of the
+PropertiesState class with three properties. To model the State we begin by
+creating a constructor that assigns x, y, and z to the properties. We provide
+methods to access the three properties and a method to check whether the system
+is empty. We also implement the method label to override the one in the class
+PropertiesState. We provide and illustration of the implementation of the State
+for this example in the code snippet below. The detailed source code for this
+class may be explored inside the file QueueMM2dN.java.
 
+\lstinputlisting[linerange={202-203,210-224,230-233,238-240,
+  246-248,254-256,271-281,294-296}]{\srcbase{QueueMM2dN.java}}
 
-
-\subsubsection{Class QueueMM2dNState}
-Our characterization of each state  fits nicely as a particular
-case of the PropertiesState class with three properties. Since we
-decided to work with numbered events rather than extending the
-Event class, we should implement the \verb"SimpleMarkovClass". In
-the following code you will see how we first model the State with
-the class \verb"QueueMM2dNState" and then model the system
-implementing the class \verb"QueueMM2dN". These two class are
-placed in the same file QueueMM2dN, but they could be placed in
-separate files.
-
-To model the State we begin by creating a constructor that assigns
-x, y, and z to the properties. We provide methods to access the
-three properties and a method to check whether the system is
-empty. We also implement the method label to override the one in the class PropertiesState.
+\subsubsection{Class QMM2dNEvent}
+There are two basic events that may occur: arrivals and service completions. We
+have to distinguish two types of service completions depending on whether the
+server that finishes is 1 or 2, which are labeled as \lstinline{DEPARTURE1} and
+\lstinline{DEPARTURE2}. Also, when the system is empty we have to distinguish
+between arrivals that go to server 1 and those that go to server 2, which are
+labeled as \lstinline{ARRIVAL1} and \lstinline{ARRIVAL2}. Finally, when at most
+one server is available an arrival is simply labeled \lstinline{ARRIVAL}. Hence,
+in total we have five events. We provide and illustration of the implementation
+of the Event class for this example in the code snippet below. The detailed
+sorce code for this class may be explored inside the file QueueMM2dN.java.
+\lstinputlisting[linerange={297-338}]{\srcbase{QueueMM2dN.java}}
 
 \subsubsection{Class QueueMM2dN}
 
+For this example we extend \verb"SimpleMarkovProcess". In the following code
+illustrate the system implementation with the class
+\verb"QueueMM2dN".
 
-There are two basic events that can occur: arrivals and service
-completions. We have to distinguish, however two types of service
-completions depending on whether the server that finishes is 1 or
-2. Also, when the system is empty we have to distinguish between
-arrivals that go to server 1 and those that go to server 2. So in
-total we have five events which we number as follows
-
-
-\subsubsection{Code}
-\lstinclude{QueueMM2dN.java}
+\lstinputlisting[linerange={22-32,43-52,66-151,165-194}]{\srcbase{QueueMM2dN.java}}
 
 \subsection{Multiple Server Queue}
 In this example we generalize what we did in the previous example.
@@ -530,64 +469,64 @@ implement the functions \texttt{active, dest} and \texttt{rate}
 just by querying the values of the type and server associated with
 the state.
 
-\subsubsection{Code}
-\lstinclude{QueueMMKdN.java}
+% \subsubsection{Code}
+% \lstinclude{QueueMMKdN.java}
 
 
-\subsection{Drive Thru}
-\subsubsection{Code}
-\lstinclude{DriveThru.java}
+% \subsection{Drive Thru}
+% \subsubsection{Code}
+% \lstinclude{DriveThru.java}
 
-\subsubsection{Results}
+% \subsubsection{Results}
 
-\begin{lstlisting}[title={Output for Drive Thru}]
-SISTEMA DRIVE THRU.
-Tasa de Entrada   = 80.0
-Tasa en el Mic    = 120.0
-Tasa de sevicio 2 = 30.0
-Posici{\'o}n del mic  = 5
-Servidores        = 4
-Cap en el sistema = 14
-
-
-
-System has 498 States.
+% \begin{lstlisting}[title={Output for Drive Thru}]
+% SISTEMA DRIVE THRU.
+% Tasa de Entrada   = 80.0
+% Tasa en el Mic    = 120.0
+% Tasa de sevicio 2 = 30.0
+% Posici{\'o}n del mic  = 5
+% Servidores        = 4
+% Cap en el sistema = 14
 
 
-MEASURES OF PERFORMANCE
 
-NAME                                       MEAN      SDEV
-Tamano Cola                               4.503     2.693
-Serv Ocupados Microfono                   0.550     0.498
-Serv Ocupados Cocinando                   2.199     1.165
-Serv Ocupados                             2.749     1.088
-Clientes Bloqueados antes de ordenar      0.112     0.316
-Clientes Bloqueados con orden lista       1.540     1.646
-Clientes Bloqueados                       1.652     1.604
-Total clientes en Espera                  6.155     3.487
-Total Clientes                            8.903     3.396
+% System has 498 States.
 
-EVENTS OCCURANCE RATES
-NAME       MEAN RATE
-Arrival       65.965
-MicEnd        65.965
-SrvEnd(0)     28.019
-SrvEnd(1)      9.927
-SrvEnd(2)      9.446
-SrvEnd(3)      8.333
-SrvEnd(4)      6.114
-SrvEnd(5)      4.126
 
-Tiempo de espera para Tamano Cola: 4.096 minutos
-Tiempo de espera para Serv Ocupados Microfono : 0.5 minutos
-Tiempo de espera para Serv Ocupados Cocinando: 2 minutos
-Tiempo de espera para Serv Ocupados : 2.5 minutos
-Tiempo de espera para Clientes Bloqueados antes de ordenar: 0.102 minutos
-Tiempo de espera para Clientes Bloqueados con orden lista: 1.4 minutos
-Tiempo de espera para Clientes Bloqueados: 1.503 minutos
-Tiempo de espera para Total clientes en Espera: 5.598 minutos
-Tiempo de espera para Total Clientes : 8.098 minutos
-\end{lstlisting}
+% MEASURES OF PERFORMANCE
+
+% NAME                                       MEAN      SDEV
+% Tamano Cola                               4.503     2.693
+% Serv Ocupados Microfono                   0.550     0.498
+% Serv Ocupados Cocinando                   2.199     1.165
+% Serv Ocupados                             2.749     1.088
+% Clientes Bloqueados antes de ordenar      0.112     0.316
+% Clientes Bloqueados con orden lista       1.540     1.646
+% Clientes Bloqueados                       1.652     1.604
+% Total clientes en Espera                  6.155     3.487
+% Total Clientes                            8.903     3.396
+
+% EVENTS OCCURANCE RATES
+% NAME       MEAN RATE
+% Arrival       65.965
+% MicEnd        65.965
+% SrvEnd(0)     28.019
+% SrvEnd(1)      9.927
+% SrvEnd(2)      9.446
+% SrvEnd(3)      8.333
+% SrvEnd(4)      6.114
+% SrvEnd(5)      4.126
+
+% Tiempo de espera para Tamano Cola: 4.096 minutos
+% Tiempo de espera para Serv Ocupados Microfono : 0.5 minutos
+% Tiempo de espera para Serv Ocupados Cocinando: 2 minutos
+% Tiempo de espera para Serv Ocupados : 2.5 minutos
+% Tiempo de espera para Clientes Bloqueados antes de ordenar: 0.102 minutos
+% Tiempo de espera para Clientes Bloqueados con orden lista: 1.4 minutos
+% Tiempo de espera para Clientes Bloqueados: 1.503 minutos
+% Tiempo de espera para Total clientes en Espera: 5.598 minutos
+% Tiempo de espera para Total Clientes : 8.098 minutos
+% \end{lstlisting}
 
 \section{Modeling Quasi-Birth and Death Processes}\label{sec:QBD}
 
@@ -805,37 +744,38 @@ Server Utilization    0.12500   0.33072
 \caption{MOPs report of jMarkov}\label{fg:MOPs}
 \end{figure}
 
-\section{Advanced Features}
+% \section{Advanced Features}
 
-\subsection{Using the Solvers}
-
-
-
-
-\subsection{Using the Transitions scheme}
+% \subsection{Using the Solvers}
 
 
 
-\subsection{Computing MOPs on the fly to save memory}
+
+% \subsection{Using the Transitions scheme}
 
 
-\subsection{extending jMarkov}
+
+% \subsection{Computing MOPs on the fly to save memory}
+
+
+% \subsection{extending jMarkov}
 
 
 
 \section{Further Development}
 
-This project is currently under development, and therefore we appreciate all the feedback we can receive.
+This project is in constant development and we would appreciate all the feedback
+we can receive.
 
 \bibliographystyle{abbrv}
 \addcontentsline{toc}{section}{References}
 \bibliography{%
-../../Papers/Biblio/ComputerScience,%
-../../Papers/Biblio/Stochastics,%
-../../Papers/Biblio/Optimization,%
-../../Papers/Biblio/Riano,%
-../../Papers/Biblio/Manufacturing,%
-../../Papers/Biblio/Math%
+../bib/ComputerScience,%
+../bib/Stochastics,%
+../bib/Optimization,%
+../bib/Riano,%
+../bib/Manufacturing,%
+../bib/Math%
 }
 
 
