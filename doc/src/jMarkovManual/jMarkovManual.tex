@@ -90,7 +90,7 @@
 
 \setlength{\oddsidemargin}{0pt} \setlength{\textwidth}{6.5in}
 \setlength{\marginparsep}{0pt} \addtolength{\voffset}{-.8in}
-\addtolength{\textheight}{2in}
+\addtolength{\textheight}{1.5in}
 \makeindex
 
 \begin{document}
@@ -414,8 +414,8 @@ PropertiesState. We provide and illustration of the implementation of the State
 for this example in the code snippet below. The detailed source code for this
 class may be explored inside the file QueueMM2dN.java.
 
-\lstinputlisting[linerange={202-203,210-224,230-233,238-240,
-  246-248,254-256,271-281,294-296}]{\srcbase{QueueMM2dN.java}}
+\lstinputlisting[linerange={201-202,209-223,229-232,237-240,
+  245-247,253-256,271-281,293-295}]{\srcbase{QueueMM2dN.java}}
 
 \subsubsection{Class QMM2dNEvent}
 There are two basic events that may occur: arrivals and service completions. We
@@ -428,47 +428,50 @@ one server is available an arrival is simply labeled \lstinline{ARRIVAL}. Hence,
 in total we have five events. We provide and illustration of the implementation
 of the Event class for this example in the code snippet below. The detailed
 sorce code for this class may be explored inside the file QueueMM2dN.java.
-\lstinputlisting[linerange={297-338}]{\srcbase{QueueMM2dN.java}}
+\lstinputlisting[linerange={296-338}]{\srcbase{QueueMM2dN.java}}
 
 \subsubsection{Class QueueMM2dN}
 
 For this example we extend \verb"SimpleMarkovProcess". In the following code
-illustrate the system implementation with the class
-\verb"QueueMM2dN".
+illustrate the system implementation with the class \verb"QueueMM2dN".
 
 \lstinputlisting[linerange={22-32,43-52,66-151,165-194}]{\srcbase{QueueMM2dN.java}}
 
 \subsection{Multiple Server Queue}
-In this example we generalize what we did in the previous example.
-Assume that a system has exponential arrivals with exponential
-arrivals. There are $K$ distinct servers with service rates
-$\mu_1, \mu_2, \ldots, \mu_K$. A customer that finds all servers
-busy joins a single FCFS queue, with capacity $N-K$ (so there will
-be at most $N$ customers in the system). A customer that finds all
-servers idle will choose among the idle servers according to
-relative intensities $\alpha_k$, i.e., he will choose server $k$
-with probability
+Here we generalize the previous example.  Assume that a system has
+exponential arrivals with exponential service times. There are $K$ distinct
+servers with service rates $\mu_1, \mu_2, \ldots, \mu_K$. A customer that finds
+all servers busy joins a single FCFS queue, with capacity $N-K$ (so there will
+be at most $N$ customers in the system). A customer that finds all servers idle
+will choose among the idle servers according to relative intensities $\alpha_k$,
+i.e., he will choose server $k$ with probability
 \[\beta_k = \frac{\alpha_k}{\sum_{\ell\in \cal I}\alpha_{\ell}}, \qquad k \in \cal I\]
 where $\cal I$ is the set of available servers.
 
 \subsubsection{The model}
 
-For this model we characterize each state by $X(t)=(S(t), Q(t))$,
-where $S(t)=(S_1(t), \ldots, S_K(t))$, where $S_k(t)= 1$ if $k$-th
-server is busy and 0 otherwise. The events that can occur are
-arrivals and departures. However we  have to distinguish two type
-of arrivals. If there is no idle server the arriving customer
-joins the queue, and we will call this a non-directed arrival.
-Otherwise we call it a directed arrival. We also make part of the
-event description the server where the arrival is directed. In
-order to represent this event we need a more sophisticated
-structure, so instead of just numbering the events we rather
-extend the class Event, creating an object with two integer fields
-(components): the type and the server. Then it is very easy to
-implement the functions \texttt{active, dest} and \texttt{rate}
-just by querying the values of the type and server associated with
-the state.
+For this model we characterize each state by $X(t)=(S(t), Q(t))$, where
+$S(t)=(S_1(t), \ldots, S_K(t))$, and $S_k(t)= 1$ if $k$-th server is busy and 0
+otherwise. The events that can occur are arrivals and departures. However we
+have to distinguish two type of arrivals. If there is no idle server the
+arriving customer joins the queue, and we will call this a non-directed arrival.
+Otherwise we call it a directed arrival. We also make part of the event
+description the server where the arrival is directed.
 
+\subsubsection{Class QueueMMKdNEvent}
+In order to represent this event we need a more sophisticated structure, hence
+we must extend the class Event, creating an object with two integer fields
+(components): the type and the server, as is illustrated below.
+\lstinputlisting[linerange={364-412}]{\srcbase{QueueMMKdN.java}}
+
+
+\subsubsection{Methods \texttt{active, dest} and \texttt{rate}}
+Then it is very easy to implement the functions \texttt{active, dest}
+and \texttt{rate} just by querying the values of the type and server associated
+with the state.
+\lstinputlisting[linerange={74-90}]{\srcbase{QueueMMKdN.java}}
+\lstinputlisting[linerange={97-117}]{\srcbase{QueueMMKdN.java}}
+\lstinputlisting[linerange={125-139}]{\srcbase{QueueMMKdN.java}}
 % \subsubsection{Code}
 % \lstinclude{QueueMMKdN.java}
 
@@ -530,15 +533,29 @@ the state.
 
 \section{Modeling Quasi-Birth and Death Processes}\label{sec:QBD}
 
-In this section we give a brief description of Quasi-Birth and Death Processes (QBD), and explain how they can be modeled using jMarkov. QBD are Markov Processes with an infinite space state, but with a very specific repetitive structure that makes them quite tractable.
+In this section we give a brief description of Quasi-Birth and Death Processes
+(QBD), and explain how they can be modeled using jMarkov. QBD are Markov
+Processes with an infinite space state, but with a very specific repetitive
+structure that makes them quite tractable.
 
 \subsection{Quasi-Birth and Death Processes}
 \label{sec:QuasiBirthAndDeathProcesses}
 
 
-Consider a Markov process $\{X(t):t\geq0\}$ with a two dimensional state space $\cS=\{(n,i):n \geq 0, 0\leq i\leq m \}$. The first coordinate $n$ is called the \emph{level} of the process and the second coordinate $i$ is called the \emph{phase}. We assume that the number of phases $m$ is finite. In applications, the level usually represents the number of items in the system, whereas the phase might represent different stages of a service process.
+Consider a Markov process $\{X(t):t\geq0\}$ with a two dimensional state space
+$\cS=\{(n,i):n \geq 0, 0\leq i\leq m \}$. The first coordinate $n$ is called the
+\emph{level} of the process and the second coordinate $i$ is called the
+\emph{phase}. We assume that the number of phases $m$ is finite. In
+applications, the level usually represents the number of items in the system,
+whereas the phase might represent different stages of a service process.
 
-We will assume that, in one step transition, this process can go only to the states in the same level or to adjacent levels. This characteristic is analogous to a Birth and Death Process, where the only allowed transitions are to the two adjacent states (see, e.g \cite{kulk95}). Transitions can be from state $(n,i)$ to state $(n',i')$ only if $n' = n$, $n'=n-1$ or $n'=n+1$, and, for $n\ge 1$ the transition rate is independent of the level $n$. Therefore, the generator matrix, $\bQ$, has the following structure
+We will assume that, in one step transition, this process can go only to the
+states in the same level or to adjacent levels. This characteristic is analogous
+to a Birth and Death Process, where the only allowed transitions are to the two
+adjacent states (see, e.g \cite{kulk95}). Transitions can be from state $(n,i)$
+to state $(n',i')$ only if $n' = n$, $n'=n-1$ or $n'=n+1$, and, for $n\ge 1$ the
+transition rate is independent of the level $n$. Therefore, the generator
+matrix, $\bQ$, has the following structure
 \begin{equation*}\label{eq:QBDMatrix}
 \bQ=
         \begin{bmatrix}
@@ -548,20 +565,28 @@ We will assume that, in one step transition, this process can go only to the sta
                         &             & \ddots      & \ddots      & \ddots
         \end{bmatrix},
 \end{equation*}
-where, as usual, the rows add up to 0. An infinite Markov Process with the conditions described above is called a Quasi-Birth and Death Process (QBD).
+where, as usual, the rows add up to 0. An infinite Markov Process with the
+conditions described above is called a Quasi-Birth and Death Process (QBD).
 
 
-In general, the level zero might have  a number of phases $m_0\neq m$. We will call these first $m_0$ states the \textit{boundary states}, and all other states will be called \textit{typical states}. Note that matrix $\bB_{00}$ has size $m_0\times m_0$, whereas $\bB_{01}$ and $\bB_{10}$ are matrices of sizes $(m_0\times m)$ and $(m \times m_0)$, respectively. Assume that the QBD is an ergodic Markov Chain. As a result, there is a steady state distribution $\bpi$ that is the
-unique solution $\bpi$ to the system $\bpi \bQ = \zero$,
-$\bpi \one = 1$.
-Divide this $\bpi$ vector by levels, analogously to the way $\bQ$ was divided, as
+In general, the level zero might have a number of phases $m_0\neq m$. We will
+call these first $m_0$ states the \textit{boundary states}, and all other states
+will be called \textit{typical states}. Note that matrix $\bB_{00}$ has size
+$m_0\times m_0$, whereas $\bB_{01}$ and $\bB_{10}$ are matrices of sizes
+$(m_0\times m)$ and $(m \times m_0)$, respectively. Assume that the QBD is an
+ergodic Markov Chain. As a result, there is a steady state distribution $\bpi$
+that is the unique solution $\bpi$ to the system $\bpi \bQ = \zero$,
+$\bpi \one = 1$.  Divide this $\bpi$ vector by levels, analogously to the way
+$\bQ$ was divided, as
 \[ \bpi = [ \bpi_0, \bpi_1,\ldots]. \]
 Then, it can be shown that a solution exist that satisfy
 \[  \bpi_{n+1}= \bpi_n\bR, \qquad n > 1,\]
 where $\bR$ is a constant square matrix of order $m$ \cite{neut81}.
 This $\bR$ is the solution to the equation
-\[ \bA_0 + \bR\bA_1  + \bR^2\bA_2  = \zero. \]
-There are various algorithms that can be used to compute the matrix $\bR$. For example, you can start with any initial guess $\bR_0$ and obtain a series of $\bR_k$ through iterations of the form
+\[ \bA_0 + \bR\bA_1 + \bR^2\bA_2 = \zero. \]
+There are various algorithms that can be used to compute the matrix $\bR$. For
+example, you can start with any initial guess $\bR_0$ and obtain a series of
+$\bR_k$ through iterations of the form
 \[ \bR_{k+1} = -(\bA_0 + \bR^2_k\bA_2 )\bA_1^{-1}. \]
 This process is shown to converge (and $\bA_1$ does have an
 inverse). More elaborated algorithms are presented in  Latouche
@@ -585,9 +610,14 @@ linear system of equations
 \end{gather*}
 
 \subsection{Measures of performance for QBDs}
-We consider two types of measures of performance that can be defined in a QBD model. The first type can be seen as a reward $r_i$ received whenever the system is in phase $i$, independent of the level, for level $n\ge1$. The long-run value for such a measure of performance is computed according to
+We consider two types of measures of performance that can be defined in a QBD
+model. The first type can be seen as a reward $r_i$ received whenever the system
+is in phase $i$, independent of the level, for level $n\ge1$. The long-run value
+for such a measure of performance is computed according to
 \[ \sum_{n=1}^\infty \bpi_n \br = \bpi_1(\bI-\bR)^{-1}\br, \]
-where $\br$ is an $m$-size column vector with components $r_i$. The second type of reward has the form $nr_i$, whenever the system is in phase $i$ of level $n$. Its long-run value is
+where $\br$ is an $m$-size column vector with components $r_i$. The second type
+of reward has the form $nr_i$, whenever the system is in phase $i$ of level
+$n$. Its long-run value is
 \[\sum_{n=1}^\infty n \bpi_n \br = \bpi_1\bR(\bI-\bR)^{-2}\br. \]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This is used to equalize last page's columns:
@@ -597,130 +627,127 @@ where $\br$ is an $m$-size column vector with components $r_i$. The second type 
 
 \subsection{Modeling QBD with jQBD}\label{sec:QBDmodule}
 
-Modeling QBD with jMarkov is similar to modeling a Markov Processes. Again, the user has to code the states, the events, and then define the dynamics of the system through \Active, \Dests, and \Rate. The main difference is that special care needs to be taken when defining the destination states for the typical states. Rather than defining a new level for the destination state, the user should give a new \textit{relative} level, which can be -1, 0, or +1. This is accomplished by using two different classes to define states. The current state of the system is a \texttt{GeomState}, but the destination states are \texttt{GeomRelState}. The process itself must extend the class \GeomProcess, which in turn is an extension of \MarkovProcess.
+Modeling QBD with jMarkov is similar to modeling a Markov Processes. Again, the
+user has to code the states, the events, and then define the dynamics of the
+system through \Active, \Dests, and \Rate. The main difference is that special
+care needs to be taken when defining the destination states for the typical
+states. Rather than defining a new level for the destination state, the user
+should give a new \textit{relative} level, which can be -1, 0, or +1. This is
+accomplished by using two different classes to define states. The current state
+of the system is a \texttt{GeomState}, but the destination states are
+\texttt{GeomRelState}. The process itself must extend the class \GeomProcess,
+which in turn is an extension of \MarkovProcess.
 
-The building algorithm uses the information stored about the dynamics of the process to explore the graph and build only the first three levels of the system. From this, it is straightforward to extract matrices $\bB_{00}$, $\bB_{01}$, $\bB_{10}$,  $\bA_0$, $\bA_1$, and $\bA_2$. Once these matrices are obtained,  the stability condition is checked. If the system is found to be stable, then the matrices $\bA_0$, $\bA_1$, and $\bA_2$ are passed to the solver, which takes care of computing the matrix $\bR$ and the steady state probabilities vectors $\bpi_0$ and $\bpi_1$, using the formulas described above. The implemented solver (\texttt{MtjLogRedSolver}) uses the logarithmic reduction algorithm \cite{lato.rama99}. This class uses MTJ for matrices manipulations.
-There are also mechanisms to define both types of measures of performance mentioned above, and jQBD can compute the long run average value for all of them.
+The building algorithm uses the information stored about the dynamics of the
+process to explore the graph and build only the first three levels of the
+system. From this, it is straightforward to extract matrices $\bB_{00}$,
+$\bB_{01}$, $\bB_{10}$, $\bA_0$, $\bA_1$, and $\bA_2$. Once these matrices are
+obtained, the stability condition is checked. If the system is found to be
+stable, then the matrices $\bA_0$, $\bA_1$, and $\bA_2$ are passed to the
+solver, which takes care of computing the matrix $\bR$ and the steady state
+probabilities vectors $\bpi_0$ and $\bpi_1$, using the formulas described
+above. The implemented solver (\texttt{MtjLogRedSolver}) uses the logarithmic
+reduction algorithm \cite{lato.rama99}. This class uses MTJ for matrices
+manipulations.  There are also mechanisms to define both types of measures of
+performance mentioned above, and jQBD can compute the long run average value for
+all of them.
 
 
 \subsection{An Example} \label{sec:Usage}
 
-To illustrate the modeling process with jQBD,
-we will show the previous steps with a simple example. %
-Consider a infinite queue with a station that has a single
-hiper-expo\-nen\-tial server with $n$ service phases, with
-probability $\alpha_i$ to reach the service phase $i$ and
-with service rate $\mu_i$ at phase $i$, where $0\leq i \leq n$. %
-The station is fed from an external source according to a Poisson
-processes with rate $\lambda$. %
-We will use this model as an illustrative example of a QBD
-process, and will show how each of the previous steps is performed
-for this example. Of course all measures of performnce for this system can be readilly obtained in closed form since it is a particular case of an $M/G/1$, but we chose this example bacause of its simplicity. The code below actually models any general phase-type distribution, so the hyper-geometric will be a particular case.
+To illustrate the modeling process with jQBD, we will show the previous steps
+with a simple example.  Consider a infinite queue with a station that has a
+single hiper-expo\-nen\-tial server with $n$ service phases, with probability
+$\alpha_i$ to reach the service phase $i$ and with service rate $\mu_i$ at phase
+$i$, where $0\leq i \leq n$. The station is fed from an external source
+according to a Poisson processes with rate $\lambda$.  We will use this model as
+an illustrative example of a QBD process, and will show how each of the previous
+steps is performed for this example. Of course all measures of performnce for
+this system can be readilly obtained in closed form since it is a particular
+case of an $M/G/1$, but we chose this example bacause of its simplicity. The
+code below actually models any general phase-type distribution, so the
+hyper-geometric will be a particular case.
 \begin{itemize}
-    \item \textbf{States:} Because of the memoryless property,
-    the state of the system is fully characterized by an
-    integer valued vector $\bx=(x_1, x_2)$, where $x_1 \geq 0$
-    represents the number of items in the system and $0 \leq x_2 \leq n$
-    represents the current phase of the service process.%
-    Note that, knowing this, we can know how many 
-    items are in service and how many are queuing. %
-    It is important to highlight that the computational representation uses only the 
-    phase of the system ($x_2$) because the level ($x_1$)is manged internally by the framework. %
-    \item \textbf{Events:} An event occurs whenever an
-    item arrives to the system or finishes processing at
-    a particular service phase $0 \leq i \leq n$. %
-    Therefore, we will define the set of possible events as
-    $\cE =\{a, c_1, c_2, \ldots, c_n\} $, where the event $a$ 
-    represents an arrival to the system and an event $c_i$ represents
-    the completion of a service in phase $i$. 
+\item \textbf{States:} Because of the memoryless property, the state of the
+  system is fully characterized by an integer valued vector $\bx=(x_1, x_2)$,
+  where $x_1 \geq 0$ represents the number of items in the system and
+  $0 \leq x_2 \leq n$ represents the current phase of the service process.  Note
+  that, knowing this, we can know how many items are in service and how many are
+  queuing.  It is important to highlight that the computational representation
+  uses only the phase of the system ($x_2$) because the level ($x_1$)is manged
+  internally by the framework.
+\item \textbf{Events:} An event occurs whenever an item arrives to the system or
+  finishes processing at a particular service phase $0 \leq i \leq n$.
+  Therefore, we will define the set of possible events as
+  $\cE =\{a, c_1, c_2, \ldots, c_n\} $, where the event $a$ represents an
+  arrival to the system and an event $c_i$ represents the completion of a
+  service in phase $i$.
 
 \item   \textbf{Markov Process:} We elected to implement
 \GeomProcess, which implied coding the following three methods:
 \begin{itemize}
-    \item \Active\texttt{(i,e)}: Since the queue is an infinite QBD
-    process the event $a$ is always active, and the events
-    $c_i, 0 \leq i \leq n$ are active
-    if there is an item at workstation on service phase $i$. %
-    The code to achieve this can be seen in Figure
-    \ref{ls:HiperExQueueActiveMethod}. %
-    \item \Dests\texttt{(i,e,j)}: When the event $a$ occurs there is always an
-    increment on the system level, but you need to consider if the server is idle or busy. %
-    When the server is idle the new costumer could start in any of the 
-    $n$ service phases, then the system could reach anyone of the first level
-    $n$ states with probability $\alpha_i$. On the other hand, if the server is 
-    busy on service phase $i$, the system will reach the next level state with 
-    the same service phase $i$. %
+\item \Active\texttt{(i,e)}: Since the queue is an infinite QBD process the
+  event $a$ is always active, and the events $c_i, 0 \leq i \leq n$ are active
+  if there is an item at workstation on service phase $i$.  The code to achieve
+  this can be seen in Figure \ref{ls:HiperExQueueActiveMethod}.
+  \begin{figure}[htb]
+    \centering
+    \lstinputlisting[linerange={75-87}]{\srcbase{HiperExQueue.java}}
+    \caption{\texttt{active} method of class HiperExQueue.java}
+    \label{ls:HiperExQueueActiveMethod}
+  \end{figure}
+
+\item \Dests\texttt{(i,e,j)}: When the event $a$ occurs there is always an
+  increment on the system level, but you need to consider if the server is idle
+  or busy.  When the server is idle the new costumer could start in any of the
+  $n$ service phases, then the system could reach anyone of the first level $n$
+  states with probability $\alpha_i$. On the other hand, if the server is busy
+  on service phase $i$, the system will reach the next level state with the same
+  service phase $i$. 
     
-    On the other hand, when the server finishes one service $c_i$, no matter which phase type,
-    the level of the system is reduced by one, but you need to consider if the system
-    is in level 1 or if it is in level 2 or above. When the level is 1, the system 
-    reach the unique state ($0,0$) where there are no costumer in the system and the server is idle.
-    On the other hand, if the system level is equal or greater than 2, the system 
-    could reach any of the $n$ states in the level below with probability $\alpha_i$.
-    The Java code can be seen in Figure
-    \ref{ls:HiperExQueueDestsMethod}. %
-    \item \Rate\texttt{(i,e)}: The rate of occurrence of
-    event $a$ is given simply by $\lambda$ and the rate of occurrence
-    of an event $c_i$ is given by $\mu_i$. %
-    In Figure \ref{ls:HiperExQueueRateMethod} you can see the corresponding
-    code.
+  On the other hand, when the server finishes one service $c_i$, no matter which
+  phase type, the level of the system is reduced by one, but you need to
+  consider if the system is in level 1 or if it is in level 2 or above. When the
+  level is 1, the system reach the unique state ($0,0$) where there are no
+  costumer in the system and the server is idle.  On the other hand, if the
+  system level is equal or greater than 2, the system could reach any of the $n$
+  states in the level below with probability $\alpha_i$.  The Java code can be
+  seen in Figure \ref{ls:HiperExQueueDestsMethod}.
+  \begin{figure}[htb]
+    \centering
+    \lstinputlisting[linerange ={94-121}]{\srcbase{HiperExQueue.java}}
+    \caption{\texttt{dests} method of class HiperExQueue.java}
+    \label{ls:HiperExQueueDestsMethod}
+  \end{figure}
+
+\item \Rate\texttt{(i,e)}: The rate of occurrence of event $a$ is given simply
+  by $\lambda$ and the rate of occurrence of an event $c_i$ is given by $\mu_i$.
+  In Figure \ref{ls:HiperExQueueRateMethod} you can see the corresponding code.
+  \begin{figure}[htb]
+    \centering
+    \lstinputlisting[linerange ={132-161}]{\srcbase{HiperExQueue.java}}
+    \caption{\texttt{rate} method of class
+      HiperExQueue.java}
+    \label{ls:HiperExQueueRateMethod}
+  \end{figure}
+
 \end{itemize}
- \item \textbf{MOPs:} Using the MOPS types defined in jQBD component, we will
- illustrate its use calculating the expected WIP on the system.
+\item \textbf{MOPs:} Using the MOPS types defined in jQBD component, we will
+  illustrate its use calculating the expected WIP on the system.
 \end{itemize}
 
 
-%\begin{figure}[htb]
-%  \centering
-%  \lstinputlisting[linerange ={8-11}]{HiperExQueueState.java}
-%  \caption{Constructor of class HiperExQueueState.java}
-%  \label{ls:HiperExQueueStateConstructor}
-%\end{figure}
-
-%\begin{figure}[htb]
-%  \centering
-%  \lstinputlisting[linerange ={8-25}]{HiperExQueueEvent.java}
-%  \caption{Constructor of class HiperExQueueEvent.java}
-%  \label{ls:HiperExQueueEventConstructor}
-%\end{figure}
-
-\begin{figure}[htb]
-  \centering
-%  \lstinputlisting[linerange ={226-238}]{HiperExQueue.java}
-  \lstinclude[linerange ={226-238}]{HiperExQueue.java}
-  \caption{\texttt{Active} method of class HiperExQueue.java}
-  \label{ls:HiperExQueueActiveMethod}
-\end{figure}
-
-\begin{figure}[htb]
-  \centering
-  \lstinclude[linerange ={245-273}]{HiperExQueue.java}
-  \caption{\texttt{dests} method of class HiperExQueue.java}
-  \label{ls:HiperExQueueDestsMethod}
-\end{figure}
-
-\begin{figure}[htb]
-  \centering
-  \lstinclude[linerange ={286-315}]{HiperExQueue.java}
-  \caption{\texttt{rate} method of class
-  HiperExQueue.java}
-  \label{ls:HiperExQueueRateMethod}
-\end{figure}
 
 
 
-
-
-Finally, the output obtained after running the model can
-be seen in the Graphical User Interface (GUI) in
-Figure \ref{fg:GUIExample}. %
-There is no need to use the GUI, but it is helpful
-to do so during the first stages of development, to
-make sure that all transitions are being generated as expected. %
-All the measures of performance defined can be extracted
-by convenience methods defined in the API or a report
-printed to standard output. %
-Such a report can be seen in  Figure \ref{fg:MOPs}.
+Finally, the output obtained after running the model can be seen in the
+Graphical User Interface (GUI) in Figure \ref{fg:GUIExample}. %
+There is no need to use the GUI, but it is helpful to do so during the first
+stages of development, to make sure that all transitions are being generated as
+expected. %
+All the measures of performance defined can be extracted by convenience methods
+defined in the API or a report printed to standard output. %
+Such a report can be seen in Figure \ref{fg:MOPs}.
 
 
 \begin{figure*}[bt]
