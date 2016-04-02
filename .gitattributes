@@ -59,7 +59,6 @@ doc/src/jMarkovManual/finish.tex -text
 doc/src/jMarkovManual/formulas.html -text
 doc/src/jMarkovManual/intro.tex -text
 doc/src/jMarkovManual/intropull.tex -text
-doc/src/jMarkovManual/jMarkovManual.pdf -text svneol=unset#unset
 doc/src/jMarkovManual/jMarkovManual.tex -text
 doc/src/jMarkovManual/mats.xls -text
 doc/src/jMarkovManual/overview.html -text
