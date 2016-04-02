@@ -40,8 +40,7 @@ public class QueueMM2dN extends SimpleMarkovProcess<MM2dNState, QMM2dNEvent> {
      *        server 1 (if both idle)
      * @param N Max number in the system
      */
-    public QueueMM2dN(double lambda, double mu1, 
-    		double mu2, double alpha, int N) {
+    public QueueMM2dN(double lambda, double mu1, double mu2, double alpha, int N) {
         super((new MM2dNState(0, 0, 0)), //
                 QMM2dNEvent.getAllEvents()   ); // num Events
         this.lambda = lambda;

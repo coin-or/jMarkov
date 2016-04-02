@@ -25,7 +25,7 @@ import jmarkov.basic.StatesSet;
  * where $\cal I$ is the set of idle servers.">  
  * alpha(k) / sum( alpha(j)), where the sum is over the set of idle servers.
  * </tex> 
- * @author Germán Riaño. Universidad de los Andes.
+ * @author German Riano. Universidad de los Andes.
  */
 public class QueueMMKdN extends SimpleMarkovProcess<QueueMMKdNState,QueueMMKdNEvent> {
 	// Events
@@ -74,20 +74,17 @@ public class QueueMMKdN extends SimpleMarkovProcess<QueueMMKdNState,QueueMMKdNEv
 	public boolean active(QueueMMKdNState i, QueueMMKdNEvent e) {
 		boolean result = false;
 		switch (e.type) {
-			case (NDARRIVAL) : // NDARIIVAL occurs only if servers are busy and there is roon in the Q
+		// NDARIIVAL occurs only if servers are busy and there is roon in the Q
+			case (NDARRIVAL) : 
 				result = (i.allBusy() && (i.getQSize() < N - K));
 				break;
 			case (DIRARRIVAL) :
-				{
-					result = (i.getStatus(e.server) == 0);
-					//DirARRIVAL occurs if server is EMPTY.
-					break;
-				}
+				result = (i.getStatus(e.server) == 0);
+				//DirARRIVAL occurs if server is EMPTY.
+				break;
 			case (DEPARTURE) :
-				{ // ev.type == DEPARTURE     
-					result = (i.getStatus(e.server) == 1);
-					//DEPARTURE occurs if server is busy.
-				}
+				result = (i.getStatus(e.server) == 1);
+				//DEPARTURE occurs if server is busy.
 		}
 		return result;
 	}
@@ -191,7 +188,7 @@ public class QueueMMKdN extends SimpleMarkovProcess<QueueMMKdNState,QueueMMKdNEv
  * This is a particular case of propertiesState, whith K + 1
  * properties, namely the server 1, 2, ..., K status, plus the queue level.
  * 
- * @author Germán Riaño. Universidad de los Andes.
+ * @author German Riano. Universidad de los Andes.
  */
 class QueueMMKdNState extends PropertiesState {
 
@@ -351,6 +348,7 @@ class QueueMMKdNState extends PropertiesState {
 	}
 
 }
+
 /**
 	 * 
 	 * This class define the events. 
@@ -360,7 +358,7 @@ class QueueMMKdNState extends PropertiesState {
 	 * represents the choosen server (if arrival) or the finishing 
 	 * server. For non-directed arrivals we set server -1 by convention.
 	 * 
-	 * @author Germán Riaño
+	 * @author German Riano
 	 *
 	 */
 class QueueMMKdNEvent extends Event {
@@ -369,7 +367,7 @@ class QueueMMKdNEvent extends Event {
 	final static int DIRARRIVAL = 1; //Directed arrival chooses among server(s)
 	final static int DEPARTURE = 2;
 	int type; // ARRIVAL or DEPARTURE
-	/*	server = chosen server if ARRIVAL finds many available,
+	/* server = chosen server if ARRIVAL finds many available,
 	 * server = -1 if no server available 
 	 * server = finishing server if DEPARTURE event
 	 */
