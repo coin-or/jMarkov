@@ -263,6 +263,7 @@ As a summary, if the elements in Table \ref{tb:elems} are clearly identified, th
 
 
 \section{Framework Design}
+\label{sec:frame}
 
 As stated before, the intention is to make this framework as easy to use as possible. An analogy is stated between the mathematical elements presented above and the computational elements that will be explained. There is first a general overview of the framework, and specific details of each structure will be presented afterwards. This first part should be enough to understand the examples.
 
@@ -271,15 +272,49 @@ The framework is divided in two packages. The modeling package is called \lstinl
 The following steps will show how to model a problem. An inventory problem will be used.
 
 \begin{enumerate}
-  \item \textbf{Defining the states}. The first thing to do when modeling a problem, is to define which will be the states. Each state $X_t$ is represented by an object or class, and the user must modify the attributes to satisfy the needs of each problem. The class \lstinline!State! is declared abstract and can not be used explicitly; the user must extend class \lstinline!State! and define his own state for each type of problem. Once each state has been defined, a set of states $\cS$ can be defined with the class \lstinline!States!. For example, in an inventory problem, the states are inventory levels. The following file defines such a class. It has a constructor, and, very important implemente \lil!compareTo()! to establish a total ordering among the states. If no comparator is provided, then the sorting will be made according to the name, which might be very inefficient in real problems.
+  \item \textbf{Defining the states}. The first thing to do when modeling a problem, is to define which will be the states. Each state $X_t$ is represented by an object or class, and the user must modify the attributes to satisfy the needs of each problem. The class \lstinline!State! is declared abstract and can not be used explicitly; the user must extend class \lstinline!State! and define his own state for each type of problem. Once each state has been defined, a set of states $\cS$ can be defined with the class \lstinline!States!. For example, in an inventory problem, the states are inventory levels. The following code defines such a class. It extends the class \lstinline!PropertiesState!, which defines the state as an array of integers. In this case the array only has one position, which represents the inventory level.
+  %It has a constructor, and, very important implements \lil!compareTo()! to establish a total ordering among the states. If no comparator is provided, then the sorting will be made according to the name, which might be very inefficient in real problems.
 
-\lstinclude{InvLevel.java}
-
-
+\begin{lstlisting}
+public class InvLevel extends PropertiesState {
+	public InvLevel(int k) {
+		super(new int[] {k});
+	}
+	public int getLevel() {
+		return prop[0];
+	}
+	@Override
+	public String label() {
+		return "Level " + getLevel();
+	}
+}
+\end{lstlisting}
 
 \item \textbf{Defining the actions}.The next step is to define the actions of the problem. Again, each action $A_t$ is represented by an object called \lstinline!Action!, and this is an abstract class that must be extended in order to use it. In an inventory problem, the actions that can be taken from each state are orders placed. %A set of actions $\cA$ can be defined with class \lstinline!Actions!.
+It has a constructor, and, very importantly implements \lil!compareTo()! to establish a total ordering among the actions. If no comparator is provided, then the sorting will be made according to the name, which might be very inefficient in real problems.
 
-\lstinclude{Order.java}
+\begin{lstlisting}
+public class Order extends Action {
+    private int size;
+    Order(int k) {
+        size = k;
+    }
+    @Override
+    public String label() {
+        return "Order " + size + " Units";
+    }
+    public int compareTo(Action a) {
+        if (a instanceof Order)
+            return (size - ((Order) a).size);
+        else 
+            throw new IllegalArgumentException(
+                    "Comparing with different type of Action.");
+    }
+    public final int getSize() {
+        return size;
+    }
+}
+\end{lstlisting}
 
 \item \textbf{Defining the problem}. In some way, the states and actions are independent of the problem itself. The rest of the modeling corresponds to the problem's structure that is also represented by an object. In this case, the object is more complex than the ones defined earlier, but it combines the important aspects of the problem. The classes that represent the problem are also abstract classes and must be extended in order to be used. See table (\ref{tab:TypesOfProblems}) for reference on which class to extend for each type of problem.
 
@@ -385,7 +420,7 @@ For details on the construction of specifc sets, modifying the solver or solver 
 
 \section{Examples}
 
-This sections shows some problems and their solution with JMDP in order to illustrate its use. The examples cover the usage of the \lstinline!DP!, \lstinline!FiniteMDP!, and \lstinline!InfiniteMDP! classes.
+This sections shows some problems and their solution with JMDP in order to illustrate its use. The examples cover the usage of the \lstinline!FiniteDP!, \lstinline!FiniteMDP!, and \lstinline!DTMDP! classes.
 
 \subsection{Deterministic inventory problem}
 
@@ -427,12 +462,62 @@ $T$ & Maximum weeks to model.
 
 The problem will be solved using dynamic programming to determine the appropriate amount to order in each week in order to minimize the costs. The problem has a finite horizon and is deterministic.
 
+We define a new class for the problem, define the parameters and provide a constructor in the code below. 
+\begin{lstlisting}
+public class WagnerWhitin extends FiniteDP<InvLevel, Order> {
+
+    int lastStage, maxInventory, maxBackorders, truckSize;
+    double K, b, h, price, cost;
+    int[] demand;
+
+    public WagnerWhitin(int initialInventory, int lastStage, int maxInventory,
+            int maxBackorders, int truckSize, double K, double b, double price,
+            double cost, double h, int[] demand) {
+        super(new StatesSet<InvLevel>(new InvLevel(initialInventory)),
+                lastStage);
+        this.maxInventory = maxInventory;
+        this.maxBackorders = maxBackorders;
+        this.truckSize = truckSize;
+        this.K = K;
+        this.b = b;
+        this.h = h;
+        this.demand = demand;
+        this.price = price;
+        this.cost = cost;
+        init();
+    }
+}
+\end{lstlisting}
+Now we follow the steps described in Section \ref{sec:frame}.
 \begin{enumerate}
-  \item States. Each state $X_t$ is the inventory level at each stage $t$, where the stages are the weeks. When there are backorders, they will be denoted as a negative inventory level. The set of states $\cS = \{-B, \ldots, 0, \ldots, M  \}$ are all the levels between the negative maximum backorders adn the maximum inventory level.
-  \item Actions. Each action $A_t$ is the order placed in each stage $t$. The complete set of actions are the orders from 0 to the addition of the maximum exhibit hall's capacity and the maximum backorders allowed. $\cA = \{0,\ldots,B+M\}$.
-  \item Feasible Actions. For each state $i$ the feasible actions that can be taken are those that will not exceed the exhibit hall's capacity. Ordering 0 is the minimum order and is feasible in every state. The maximum order feasible is $M-i$, so the feasible set of actions for each state $i$ is $\cA_t(i) =\{0,\ldots,M-i\}$.
-  \item Destination. The destination state when action $a$ is taken from state $i$ is the sum of the cars in that state and the cars that are ordered, minus the cars that are sold. $h(i,a,t)=i+a-D_t$.
-  \item Costs. Finally, the cost incured depends on various factors. The ordering cost is only charged when the order is positive, and charged per truck. The holding cost is charged only when there is positive stock, and the backorder cost charged only when there is negative stock. There is finally a profit for selling each car given by the difference between price and cost.
+  \item States. Each state $X_t$ is the inventory level at each stage $t$, where the stages are the weeks. When there are backorders, they will be denoted as a negative inventory level. The set of states $\cS = \{-B, \ldots, 0, \ldots, M  \}$ are all the levels between the negative maximum backorders and the maximum inventory level. We use the \lstinline!InvLevel! class defined in Section \ref{sec:frame}.
+  \item Actions. Each action $A_t$ is the order placed in each stage $t$. The complete set of actions are the orders from 0 to the addition of the maximum exhibit hall's capacity and the maximum backorders allowed. $\cA = \{0,\ldots,B+M\}$. We use the \lstinline!Order! class defined in Section \ref{sec:frame}.
+  \item Feasible Actions. For each state $i$ the feasible actions that can be taken are those that will not exceed the exhibit hall's capacity. Ordering 0 is the minimum order and is feasible in every state. The maximum order feasible is $M-i$, so the feasible set of actions for each state $i$ is $\cA_t(i) =\{0,\ldots,M-i\}$. We define the \lstinline!feasibleActions! method below.
+  \begin{lstlisting}
+      @Override
+    public Actions<Order> feasibleActions(InvLevel i, int t) {
+        ActionsSet<Order> actionSet = new ActionsSet<Order>();
+        int min_order = Math.max(-maxBackorders - i.getLevel() 
+        			+ demand[t], 0);
+        int max_order = maxInventory - i.getLevel() + demand[t];
+        for (int n = min_order; n <= max_order; n++) {
+            actionSet.add(new Order(n));
+        }
+        return actionSet;
+    }
+    \end{lstlisting}
+  \item Destination. The destination state when action $a$ is taken from state $i$ is the sum of the cars in that state and the cars that are ordered, minus the cars that are sold. $h(i,a,t)=i+a-D_t$. We define the \lstinline!destination! method below.
+  \begin{lstlisting}
+    @Override
+    public InvLevel destination(InvLevel i, Order a, int t) {
+        int o = a.getSize();
+        int iLevel = i.getLevel();
+        return new InvLevel(Math.max(iLevel + o 
+        				- demand[t], -maxBackorders));
+    }
+\end{lstlisting}
+  
+  \item Costs. Finally, the cost incurred depends on various factors. The ordering cost is only charged when the order is positive, and charged per truck. The holding cost is charged only when there is positive stock, and the backorder cost charged only when there is negative stock. There is finally a profit for selling each car given by the difference between price and cost.
 
   \begin{equation*}
     OC(a)=      \left\lceil \frac{a}{L}\right\rceil  
@@ -449,11 +534,60 @@ The problem will be solved using dynamic programming to determine the appropriat
   \[r_t(i,a)= OC(a) + HC(i) + BC(i) + (p-c)D_t\]
 \end{enumerate}
 
+We implement this using a few methods for the intermediate calculations.
+  \begin{lstlisting}
+    private double holdingCost(int x) {
+        return (x > 0) ? h * cost * x : 0.0;
+    } 
+    private double orderCost(int x) {
+        return (x > 0) ? Math.ceil((double) x / truckSize) * K : 0.0;
+    } 
+    double backorderCost(int x) {
+        return (x < 0) ? -b * x : 0.0;
+    }
+    double lostOrderCost(int x, int t) {
+        return (x + maxBackorders < demand[t]) ? (price - cost)
+                * (demand[t] - x - maxBackorders) : 0.0;
+    }
+    @Override
+    public double immediateCost(InvLevel i, Order a, int t) {
+        int s = i.getLevel();
+        int o = a.getSize();
+        return lostOrderCost(o, t) + orderCost(o) + holdingCost(s + o)
+                + backorderCost(s + o);
+    }
+  \end{lstlisting}
 
-Now, computationally, the file would look like this.
-% \lstinputlisting[basicstyle=\footnotesize, caption={WagnerWhitin.java}] {../examples/WagnerWhitin.java}
+Finally, we write a \lstinline!main! method to define an instance of the problem, generate the model and invoke the solver.
 
-\lstinclude{WagnerWhitin.java}
+  \begin{lstlisting}
+    public static void main(String a[]) throws Exception {
+        int lastStage = 12;
+        int maxInventory = 15;
+        int maxBackorders = 5;
+        int truckSize = 6;
+        double K = 500;
+        double b = 2000;
+        double p = 22000;
+        double c = 20000;
+        double h = Math.pow(1.3, 1.0 / 52) - 1.0;
+        int[] demand = new int[] { 10, 4, 3, 6, 3, 2, 0, 1, 7, 3, 4, 5 };
+
+        WagnerWhitin prob = new WagnerWhitin(0, lastStage, maxInventory,
+                maxBackorders, truckSize, K, b, p, c, h, demand);
+         
+
+        FiniteSolver<InvLevel, Order> theSolver = new FiniteSolver<InvLevel, 
+        				Order>(prob);
+        prob.setSolver(theSolver);
+        prob.solve();
+        prob.getSolver().setPrintValueFunction(true);
+        prob.printSolution();
+        prob.getOptimalCost(0);
+    }
+\end{lstlisting}
+
+This example can be found in the jMarkov distribution as \lstinline!WagnerWhitin.class!, in the \lstinline!examples/jmdp! folder. The full implementation includes additional methods not listed here. We invite you to explore the code yourself!
 
 \subsection{Finite horizon stochastic inventory problem}
 
@@ -483,14 +617,58 @@ $q_n$ & $P\{D_t >= n\}$
 \end{center}
 \end{table}
 
-The problem is a finite horizon stochastic problem. Markov Decision Processes can be used in order to minimize the costs.
+The problem is a finite horizon stochastic problem. Markov Decision Processes can be used in order to minimize the costs. We define a new class for the problem, define the parameters and provide a constructor in the code below. 
+\begin{lstlisting}
+public class StochasticDemand extends FiniteMDP<InvLevel, Order> {
 
+    int lastStage, maxInventory, maxBackorders, truckSize;
+    double K, b, h, theta, price, cost;
+    double[] demandProbability, demandCumulativeProbability;
+
+    public StochasticDemand(States<InvLevel> initSet, int lastStage,
+            int maxInventory, int maxBackorders, int truckSize, double K,
+            double b, double price, double cost, double h, double theta) {
+        super(initSet, lastStage);
+        this.maxInventory = maxInventory;
+        this.maxBackorders = maxBackorders;
+        this.truckSize = truckSize;
+        this.K = K;
+        this.b = b;
+        this.price = price;
+        this.cost = cost;
+        this.h = h;
+        this.theta = theta;
+        initializeProbabilities();
+    }
+}
+\end{lstlisting}
 \begin{enumerate}
-  \item States. Each state $X_t$ is the inventory level at each stage $t$, where the stages are the weeks. When there are backorders, they will be denoted as a negative inventory level. The set of states $\cS = \{-B, \ldots, 0, \ldots, M  \}$ are all the levels between the negative maximum backorders adn the maximum inventory level.
-  \item Actions. Each action $A_t$ is the order placed in each stage $t$. The complete set of actions are the orders from 0 to the addition of the maximum exhibit hall's capacity and the maximum backorders allowed. $\cA = \{0,\ldots,B+M\}$.
-  \item Feasible Actions. For each state $i$ the feasible actions that can be taken are those that will not exceed the exhibit hall's capacity. Ordering 0 is the minimum order and is feasible in every state. The maximum order feasible is $M-i$, so the feasible set of actions for each state $i$ is $\cA_t(i) =\{0,\ldots,M-i\}$.
-  \item Reachable States. The minimum reachable state when action $a$ is taken from state $i$ would be $-B$, when the demand is maximum ($b+i$). The maximum reachable state when action $a$ is taken from state $i$ is $i$ when the demand is minimum (0). So the set of reachable states are all the states ranging between these two: $\cS_t(i,a) = \{-B, \ldots, i\}$.
-  \item Costs. The net profit (minus cost) obtained depends on various factors. The ordering cost is only charged when the order is positive, and charged per truck.
+  \item States. Each state $X_t$ is the inventory level at each stage $t$, where the stages are the weeks. When there are backorders, they will be denoted as a negative inventory level. The set of states $\cS = \{-B, \ldots, 0, \ldots, M  \}$ are all the levels between the negative maximum backorders adn the maximum inventory level. We use the \lstinline!InvLevel! class defined in Section \ref{sec:frame}.
+  \item Actions. Each action $A_t$ is the order placed in each stage $t$. The complete set of actions are the orders from 0 to the addition of the maximum exhibit hall's capacity and the maximum backorders allowed. $\cA = \{0,\ldots,B+M\}$. We use the \lstinline!Order! class defined in Section \ref{sec:frame}.
+  \item Feasible Actions. For each state $i$ the feasible actions that can be taken are those that will not exceed the exhibit hall's capacity. Ordering 0 is the minimum order and is feasible in every state. The maximum order feasible is $M-i$, so the feasible set of actions for each state $i$ is $\cA_t(i) =\{0,\ldots,M-i\}$. We define the \lstinline!feasibleActions! method below.
+  \begin{lstlisting}
+      @Override
+    public Actions<Order> feasibleActions(InvLevel i, int t) {
+        int max = maxInventory - i.getLevel();
+        Order[] vec = new Order[max + 1];
+        for (int n = 0; n <= max; n++) {
+            vec[n] = new Order(n);
+        }
+        return new ActionsSet<Order>(vec);
+    }
+  \end{lstlisting}
+  \item Reachable States. The minimum reachable state when action $a$ is taken from state $i$ would be $-B$, when the demand is maximum ($b+i$). The maximum reachable state when action $a$ is taken from state $i$ is $i$ when the demand is minimum (0). So the set of reachable states are all the states ranging between these two: $\cS_t(i,a) = \{-B, \ldots, i\}$. We define the \lstinline!reachable! method below.
+  \begin{lstlisting}
+      @Override
+    public States<InvLevel> reachable(InvLevel i, Order a, int t) {
+        StatesSet<InvLevel> statesSet = new StatesSet<InvLevel>();
+        for (int n = -maxBackorders; n <= i.getLevel() + a.getSize(); n++) {
+            statesSet.add(new InvLevel(n));
+        }
+        return statesSet;
+    }
+\end{lstlisting}
+    \item Costs. The net profit (minus cost) obtained depends on various factors. The ordering cost is only charged when the order is positive, and charged per truck.
   \begin{equation*}
     OC(a)=\left\lceil \frac{a}{L}\right\rceil  
   \end{equation*}
@@ -514,11 +692,69 @@ The problem is a finite horizon stochastic problem. Markov Decision Processes ca
     \end{align*}
 \end{enumerate}
 
-Now, computationally, the file would look like this.
+We implement this using a few methods for the intermediate calculations.
+  \begin{lstlisting}
+     double holdingCost(int x) {
+        double temp = (x > 0) ? h * cost * x : 0.0;
+        return temp;
+    } 
+    double orderCost(int x) {
+        double temp = (x > 0) ? Math.ceil((new Integer(x)).doubleValue()
+                / truckSize)* K : 0.0;
+        return temp;
+    }  
+    double backorderCost(double x) {
+        return (x < 0) ? -b * x : 0.0;
+    }
+    double lostOrderCost(int x) {
+        int mB = maxBackorders;
+        double expectedBackorders = 0;
+        for (int n = Math.max(x + 1, 0); n <= x + mB; n++)
+            expectedBackorders += (n - x) * demandProbability[n];
+        double expectedLostDemand = demandCumulativeProbability[x + mB]
+                * (theta - x - mB) + (x + mB) * demandProbability[x + mB];
+        return (price - cost) * expectedLostDemand
+                + backorderCost(-expectedBackorders);
+    }
+    @Override
+    public double immediateCost(InvLevel i, Order a, int t) {
+        int iLevel = i.getLevel();
+        int orderSize = a.getSize();
+        double toReturn = orderCost(orderSize)
+                + holdingCost(iLevel)
+                + lostOrderCost(iLevel + orderSize);
+        return toReturn;
+    }
+\end{lstlisting}
 
-%\lstinputlisting[basicstyle=\footnotesize, caption={StochasticDemand.java}] {StochasticDemand.java}
+Finally, we write a \lstinline!main! method to define an instance of the problem, generate the model and invoke the solver.
 
-\lstinclude{StochasticDemand.java}
+  \begin{lstlisting}
+        public static void main(String a[]) throws Exception {
+        int lastStage = 12;
+        int maxInventory = 15;
+        int maxBackorders = 5;
+        int truckSize = 6;
+        int K = 500;
+        double b = 1000;
+        double h = 0.0050582;
+        double theta = 4;
+        double price = 22000;
+        double cost = 20000;
+        InvLevel initial = new InvLevel(0);
+        States<InvLevel> initSet = new StatesSet<InvLevel>(initial);
+
+        StochasticDemand pro = new StochasticDemand(initSet, lastStage,
+                maxInventory, maxBackorders, truckSize, K, b, price, cost, h,
+                theta);
+        pro.solve();
+        pro.getSolver().setPrintValueFunction(true);
+        pro.printSolution();
+    }
+\end{lstlisting}
+
+This example can be found in the jMarkov distribution as \lstinline!StochasticDemand.class!, in the \lstinline!examples/jmdp! folder. The full implementation includes additional methods not listed here, for example, to generate the Poisson probabilities. We invite you to explore the code yourself!
+
 
 \subsection{Infinite horizon stochastic inventory problem}
 
@@ -547,13 +783,59 @@ $q_n$ & $P\{D_t \geq n\}$
 \end{center}
 \end{table}
 
-The problem is a finite horizon stochastic problem. Markov Decision Processes can be used in order to minimize the costs.
+The problem is a finite horizon stochastic problem. Markov Decision Processes can be used in order to minimize the costs. We define a new class for the problem, define the parameters and provide a constructor in the code below. 
+\begin{lstlisting}
+public class InfStochasticDemand extends DTMDP<InvLevel, Order> {
+
+    private int maxInv, maxBO, truckSize;
+    private double truckCost, backorderCost, holdingCost, intRate, 
+    				expDemand, price, cost;
+    private double[] demPMF, demCDF, demandLoss1;
+    private boolean isdisc = false;
+
+    @SuppressWarnings("unchecked")
+    public InfStochasticDemand(int maxInv, int maxBO, int truckSize,
+            double truckCost, double backorderCost, double price, double cost,
+            double holdingCost, double intRate, double expDemand,
+            boolean discounted) {
+        super(new StatesSet<InvLevel>(new InvLevel(0)));
+        this.maxInv = maxInv;
+        this.maxBO = maxBO;
+        this.truckSize = truckSize;
+        this.truckCost = truckCost;
+        this.backorderCost = backorderCost;
+        this.price = price;
+        this.cost = cost;
+        this.holdingCost = holdingCost;
+        this.expDemand = expDemand;
+        // initStates();
+        initializeProbabilities();
+        this.isdisc = discounted;
+        this.intRate = intRate;
+        if (discounted)
+            setSolver(new ValueIterationSolver(this, intRate));
+        else
+            setSolver(new RelativeValueIterationSolver(this));
+    }
+}
+\end{lstlisting}
 
 \begin{enumerate}
-  \item States. Each state $X_t$ is the inventory level at each stage $t$, where the stages are the weeks. When there are backorders, they will be denoted as a negative inventory level. The set of states $\cS = \{-B, \ldots, 0, \ldots, M  \}$ are all the levels between the negative maximum backorders adn the maximum inventory level.
-  \item Actions. Each action $A_t$ is the order placed in each stage $t$. The complete set of actions are the orders from 0 to the addition of the maximum exhibit hall's capacity and the maximum backorders allowed. $\cA = \{0,\ldots,B+M\}$.
-  \item Feasible Actions. For each state $i$ the feasible actions that can be taken are those that will not exceed the exhibit hall's capacity. Ordering 0 is the minimum order and is feasible in every state. The maximum order feasible is $M-i$, so the feasible set of actions for each state $i$ is $\cA_t(i) =\{0,\ldots,M-i\}$.
-  \item Reachable States. The minimum reachable state when action $a$ is taken from state $i$ would be $-B$, when the demand is maximum ($b+i$). The maximum reachable state when action $a$ is taken from state $i$ is $i$ when the demand is minimum (0). So the set of reachable states are all the states ranging between these two: $\cS_t(i,a) = \{-B, \ldots, i\}$.
+  \item States. Each state $X_t$ is the inventory level at each stage $t$, where the stages are the weeks. When there are backorders, they will be denoted as a negative inventory level. The set of states $\cS = \{-B, \ldots, 0, \ldots, M  \}$ are all the levels between the negative maximum backorders and the maximum inventory level. We use the \lstinline!InvLevel! class defined in Section \ref{sec:frame}.
+  \item Actions. Each action $A_t$ is the order placed in each stage $t$. The complete set of actions are the orders from 0 to the addition of the maximum exhibit hall's capacity and the maximum backorders allowed. $\cA = \{0,\ldots,B+M\}$. We use the \lstinline!Order! class defined in Section \ref{sec:frame}.
+  \item Feasible Actions. For each state $i$ the feasible actions that can be taken are those that will not exceed the exhibit hall's capacity. Ordering 0 is the minimum order and is feasible in every state. The maximum order feasible is $M-i$, so the feasible set of actions for each state $i$ is $\cA_t(i) =\{0,\ldots,M-i\}$. We define the \lstinline!feasibleActions! method as in the previous example.
+  \item Reachable States. The minimum reachable state when action $a$ is taken from state $i$ would be $-B$, when the demand is maximum ($b+i$). The maximum reachable state when action $a$ is taken from state $i$ is $i$ when the demand is minimum (0). So the set of reachable states are all the states ranging between these two: $\cS_t(i,a) = \{-B, \ldots, i\}$. We define the \lstinline!reachable! method as:
+\begin{lstlisting}
+      @Override
+    public States<InvLevel> reachable(InvLevel i, Order a) {
+        StatesSet<InvLevel> statesSet = new StatesSet<InvLevel>();
+        int maxLevel = i.getLevel() + a.getSize();
+        for (int n = -maxBO; n <= maxLevel; n++) {
+            statesSet.add(new InvLevel(n));
+        }
+        return statesSet;
+    }
+\end{lstlisting}
   \item Cost. The net profit obtained depends on various factors. The ordering cost is only charged when the order is positive, and charged per truck.
   \begin{equation*}
     OC(a)=  \left\lceil \frac{a}{L}\right\rceil
@@ -578,9 +860,58 @@ The problem is a finite horizon stochastic problem. Markov Decision Processes ca
     \end{align*}
 \end{enumerate}
 
-Now, computationally, the file would look like this.
+We implement this using a few methods for the intermediate calculations.
+  \begin{lstlisting}
+    double holdingCost(int x) {
+        double totHoldCost = holdingCost + ((isdisc) ? intRate * cost : 0.0);
+        return (x > 0) ? totHoldCost * x : 0.0;
+    } 
+    double orderCost(int x) {
+        return truckCost * Math.ceil((double) x / truckSize) + x * cost;
+    } 
+    double backorderCost(double x) {
+        return (x < 0) ? -backorderCost * x : 0.0;
+    }
+    @Override
+    public double immediateCost(InvLevel i, Order a) {
+        int maxSale = i.getLevel() + a.getSize() + maxBO;
+        double expectedSales = expDemand - demandLoss1[maxSale];
+        double netProfit = price * expectedSales - orderCost(a.getSize())
+                - holdingCost(i.getLevel()) - backorderCost(i.getLevel());
+        return -netProfit;
+    }
+\end{lstlisting}
 
-\lstinclude{InfStochasticDemand.java}
+Finally, we write a \lstinline!main! method to define an instance of the problem, generate the model and invoke the solver.
+
+  \begin{lstlisting}
+public static void main(String a[]) throws SolverException {
+        int maxInventory = 25;
+        int maxBackorders = 0;
+        int truckSize = 4;
+        int truckCost = 1000;
+        double b = 0;
+        double holdCost = 50;
+        double intRate = Math.pow(1.3, 1 / 52);
+        double theta = 20;
+        double price = 1100;
+        double cost = 500;
+
+        InfStochasticDemand prob = new InfStochasticDemand(maxInventory, 
+        				maxBackorders, truckSize, truckCost, b, price, cost, 
+        				holdCost, intRate, theta, false);
+
+        RelativeValueIterationSolver<InvLevel, Order> solv = new 
+        				RelativeValueIterationSolver<InvLevel,Order>(prob);
+
+        prob.setSolver(solv);
+        prob.getSolver().setPrintValueFunction(true);
+        prob.solve();
+        prob.printSolution();
+    }
+\end{lstlisting}
+
+This example can be found in the jMarkov distribution as \lstinline!InfStochasticDemand.class!, in the \lstinline!examples/jmdp! folder. The full implementation includes additional methods not listed here, for example, to generate the Poisson probabilities. We invite you to explore the code yourself!
 
 \section{Advanced Features}
 
