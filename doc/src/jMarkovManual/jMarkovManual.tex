@@ -289,8 +289,9 @@ Markov processes, \GeomProcess is used for Quasi-Birth and Death Processes (QBD)
 and its description is given in Section \ref{sec:QBDmodule} below.
 
 \begin{figure}[htb]
+  \centering
   % Requires \usepackage{graphicx}
-  \includegraphics[width=0.95\columnwidth]{pics/buildModuleDiag}
+  \includegraphics[width=0.6\columnwidth]{pics/buildModuleDiag}
   \caption{Class diagram build module}\label{fg:BuildModuleDiag}
 \end{figure}
 
@@ -414,6 +415,7 @@ PropertiesState. We provide and illustration of the implementation of the State
 for this example in the code snippet below. The detailed source code for this
 class may be explored inside the file QueueMM2dN.java.
 
+\lstset{title={Class MM2dNState}}
 \lstinputlisting[linerange={201-202,209-223,229-232,237-240,
   245-247,253-256,271-281,293-295}]{\srcbase{QueueMM2dN.java}}
 
@@ -428,6 +430,8 @@ one server is available an arrival is simply labeled \lstinline{ARRIVAL}. Hence,
 in total we have five events. We provide and illustration of the implementation
 of the Event class for this example in the code snippet below. The detailed
 sorce code for this class may be explored inside the file QueueMM2dN.java.
+
+\lstset{title={Class QMM2dNEvent}}
 \lstinputlisting[linerange={296-338}]{\srcbase{QueueMM2dN.java}}
 
 \subsubsection{Class QueueMM2dN}
@@ -435,6 +439,7 @@ sorce code for this class may be explored inside the file QueueMM2dN.java.
 For this example we extend \verb"SimpleMarkovProcess". In the following code
 illustrate the system implementation with the class \verb"QueueMM2dN".
 
+\lstset{title={Class QueueMM2dN}}
 \lstinputlisting[linerange={22-32,43-52,66-151,165-194}]{\srcbase{QueueMM2dN.java}}
 
 \subsection{Multiple Server Queue}
@@ -692,6 +697,7 @@ hyper-geometric will be a particular case.
   this can be seen in Figure \ref{ls:HiperExQueueActiveMethod}.
   \begin{figure}[htb]
     \centering
+    \lstset{title={Method active}}
     \lstinputlisting[linerange={75-87}]{\srcbase{HiperExQueue.java}}
     \caption{\texttt{active} method of class HiperExQueue.java}
     \label{ls:HiperExQueueActiveMethod}
@@ -715,6 +721,7 @@ hyper-geometric will be a particular case.
   seen in Figure \ref{ls:HiperExQueueDestsMethod}.
   \begin{figure}[htb]
     \centering
+    \lstset{title={Method dests}}
     \lstinputlisting[linerange ={94-121}]{\srcbase{HiperExQueue.java}}
     \caption{\texttt{dests} method of class HiperExQueue.java}
     \label{ls:HiperExQueueDestsMethod}
@@ -725,6 +732,7 @@ hyper-geometric will be a particular case.
   In Figure \ref{ls:HiperExQueueRateMethod} you can see the corresponding code.
   \begin{figure}[htb]
     \centering
+    \lstset{title={Method rate}}
     \lstinputlisting[linerange ={132-161}]{\srcbase{HiperExQueue.java}}
     \caption{\texttt{rate} method of class
       HiperExQueue.java}
@@ -735,9 +743,6 @@ hyper-geometric will be a particular case.
 \item \textbf{MOPs:} Using the MOPS types defined in jQBD component, we will
   illustrate its use calculating the expected WIP on the system.
 \end{itemize}
-
-
-
 
 
 Finally, the output obtained after running the model can be seen in the
@@ -758,17 +763,18 @@ Such a report can be seen in Figure \ref{fg:MOPs}.
 \end{figure*}
 
 \begin{figure}[htb]
-\small
-\begin{lstlisting}
-MEASURES OF PERFORMANCE
-
-NAME                     MEAN      SDEV
-
-Expected Level        0.14286         ?
-Server Utilization    0.12500   0.33072
-
-\end{lstlisting}
-\caption{MOPs report of jMarkov}\label{fg:MOPs}
+  \small
+  \lstset{title={MOPS}}
+  \begin{lstlisting}
+    MEASURES OF PERFORMANCE
+    
+    NAME                     MEAN      SDEV
+    
+    Expected Level        0.14286         ?
+    Server Utilization    0.12500   0.33072
+    
+  \end{lstlisting}
+  \caption{MOPs report of jMarkov}\label{fg:MOPs}
 \end{figure}
 
 % \section{Advanced Features}
