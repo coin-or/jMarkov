@@ -602,7 +602,6 @@ javadoc/resources/titlebar_end.gif -text
 javadoc/serialized-form.html -text
 javadoc/stylesheet.css -text
 lib/jMarkov.jar -text
-src/examples/jmarkov/AccessControl2Queues.java -text
 src/examples/jmarkov/BBPhBuf.java -text
 src/examples/jmarkov/BBPhBufExp.java -text
 src/examples/jmarkov/BBPhase.java -text
@@ -640,9 +639,6 @@ src/examples/jmarkov/QueueMM2dN.java -text
 src/examples/jmarkov/QueueMMKdN.java -text
 src/examples/jmarkov/QueuePhPh2.java -text
 src/examples/jmarkov/Web.java -text
-src/examples/jmdp/AccessControl.java -text
-src/examples/jmdp/AccessControlFiniteHor.java -text
-src/examples/jmdp/Admit.java -text
 src/examples/jmdp/Bank2Queues.java -text
 src/examples/jmdp/CTInventory.java -text
 src/examples/jmdp/CTInventoryEvents.java -text
@@ -685,8 +681,6 @@ src/examples/jmdp/Order.java -text
 src/examples/jmdp/OrderProcessing.java -text
 src/examples/jmdp/ProbsExample.java -text
 src/examples/jmdp/StochasticDemand.java -text
-src/examples/jmdp/TandemEvent.java -text
-src/examples/jmdp/TandemQueues.java -text
 src/examples/jmdp/WagnerWhitin.java -text
 src/examples/jphase/BasicExamples.java -text
 src/examples/jphase/PhaseSystem.java -text
