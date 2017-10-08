@@ -1,0 +1,26 @@
+\indexentry{Object Oriented Programming|hyperpage}{2}
+\indexentry{OOP|hyperpage}{2}
+\indexentry{Dynamic Programming|hyperpage}{2}
+\indexentry{Finite Horizon Problems|hyperpage}{3}
+\indexentry{Markov Decision Process|hyperpage}{3}
+\indexentry{horizon|hyperpage}{3}
+\indexentry{space state|hyperpage}{3}
+\indexentry{action space|hyperpage}{3}
+\indexentry{Transition Probabilities|hyperpage}{3}
+\indexentry{action|hyperpage}{3}
+\indexentry{history|hyperpage}{3}
+\indexentry{decision rule|hyperpage}{3}
+\indexentry{policy|hyperpage}{3}
+\indexentry{Markov policy|hyperpage}{3}
+\indexentry{stationary policy|hyperpage}{3}
+\indexentry{deterministic policy|hyperpage}{3}
+\indexentry{cost|hyperpage}{3}
+\indexentry{total expected cost|hyperpage}{3}
+\indexentry{value function|hyperpage}{3}
+\indexentry{Bellman's optimality equation|hyperpage}{3}
+\indexentry{feasible actions|hyperpage}{3}
+\indexentry{Infinite Horizon Problems|hyperpage}{4}
+\indexentry{Bellman's optimality equation|hyperpage}{4}
+\indexentry{Value Iteration algorithm|hyperpage}{4}
+\indexentry{$\epsilon$-optimal|hyperpage}{4}
+\indexentry{Policy Iteration algorithm|hyperpage}{5}

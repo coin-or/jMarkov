@@ -1,0 +1,23 @@
+\contentsline {section}{\numberline {1}Java and Object Oriented Programming}{1}{section.1}
+\contentsline {section}{\numberline {2}Markov Decision Process - The Mathematical Model}{2}{section.2}
+\contentsline {subsection}{\numberline {2.1}Finite Horizon Problems}{3}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Infinite Horizon Problems}{4}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}Discounted Cost}{4}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}Total Cost}{5}{subsubsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.3}Average Cost}{5}{subsubsection.2.2.3}
+\contentsline {subsection}{\numberline {2.3}Deterministic Dynamic Programming}{6}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Main modeling elements in MDP}{6}{subsection.2.4}
+\contentsline {section}{\numberline {3}Framework Design}{7}{section.3}
+\contentsline {section}{\numberline {4}Examples}{10}{section.4}
+\contentsline {subsection}{\numberline {4.1}Deterministic inventory problem}{10}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Finite horizon stochastic inventory problem}{14}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Infinite horizon stochastic inventory problem}{17}{subsection.4.3}
+\contentsline {section}{\numberline {5}Advanced Features}{20}{section.5}
+\contentsline {subsection}{\numberline {5.1}States and Actions}{21}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Decision Rules and Policies}{21}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}MDP class}{22}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.4}Solver classes}{22}{subsection.5.4}
+\contentsline {subsubsection}{\numberline {5.4.1}FiniteSolver}{22}{subsubsection.5.4.1}
+\contentsline {subsubsection}{\numberline {5.4.2}ValueIterationSolver}{23}{subsubsection.5.4.2}
+\contentsline {subsubsection}{\numberline {5.4.3}PolicyIterationSolver}{23}{subsubsection.5.4.3}
+\contentsline {section}{\numberline {6}Further Development}{23}{section.6}

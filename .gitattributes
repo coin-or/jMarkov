@@ -11,7 +11,15 @@ doc/jPhaseGUIManual.pdf -text
 doc/jPhaseManual.pdf -text svneol=unset#unset
 doc/src/jMDPManual/ProblemStructure-eps-converted-to.pdf -text
 doc/src/jMDPManual/ProblemStructure.eps -text
+doc/src/jMDPManual/jMDPManual.aux -text
+doc/src/jMDPManual/jMDPManual.bbl -text
+doc/src/jMDPManual/jMDPManual.blg -text
+doc/src/jMDPManual/jMDPManual.idx -text
+doc/src/jMDPManual/jMDPManual.out -text
+doc/src/jMDPManual/jMDPManual.pdf -text
+doc/src/jMDPManual/jMDPManual.synctex -text
 doc/src/jMDPManual/jMDPManual.tex -text
+doc/src/jMDPManual/jMDPManual.toc -text
 doc/src/jMDPManual/manual.tar -text
 doc/src/jMDPManual/manual/.ID_MAP.dir -text
 doc/src/jMDPManual/manual/.ID_MAP.pag -text
