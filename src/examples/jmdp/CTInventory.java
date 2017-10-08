@@ -150,22 +150,22 @@ public class CTInventory extends CTMDP<CTStock, Order> {
      * @throws SolverException
      */
     public static void main(String[] args) throws SolverException {
-        int maxCapacity = 15;// Capacity
-        int truckSize = 6; // truck capacity
+        int maxCapacity = 20;// Capacity
+        int truckSize = 10; // truck capacity
         double K = 0;// Fixed cost per Order
         double cost = 400; // variable cost
         double price = 1000; // variable cost
         double holdingCost = 80; // holding cost per computer per period.
-        double demandMean = 4; // mean of the Poisson demand per unit time
-        double leadTime = 2; // expected time units for order arrival
+        double demandMean = 15; // mean of the Poisson demand per unit time
+        double leadTime = 1; // expected time units for order arrival
         States<CTStock> initSet = new StatesSet<CTStock>(new CTStock(1, 0));
 
         CTInventory prob = new CTInventory(initSet, maxCapacity, truckSize, K,
                 cost, price, holdingCost, demandMean, leadTime);
 
-        RelativeValueIterationSolver<CTStock, Order> solv = new RelativeValueIterationSolver<CTStock, Order>(
-                prob);
+        RelativeValueIterationSolver<CTStock, Order> solv = new RelativeValueIterationSolver<CTStock, Order>(prob);
         solv.setPrintValueFunction(true);
+        prob.setSolver(solv);
         prob.solve();
         prob.printSolution();
         System.out.println("time:" + solv.getProcessTime());

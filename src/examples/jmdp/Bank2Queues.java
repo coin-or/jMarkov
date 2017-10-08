@@ -17,6 +17,7 @@ import jmarkov.basic.StatesSet;
 import jmarkov.basic.ValueFunction;
 import jmarkov.basic.exceptions.SolverException;
 import jmarkov.jmdp.CTMDP;
+import jmarkov.jmdp.solvers.RelativeValueIterationSolver;
 import jmarkov.jmdp.solvers.ValueIterationSolver;
 
 /**
@@ -166,12 +167,12 @@ public class Bank2Queues extends CTMDP<BankQueues, BankServers> {
         int total = i.getClients() + i.getUsers();
         int servers = i.getClientServers();
         int ac = a.getClientServers();
-        if ((ac <= 0) && (i.getClients() > 0) && (servers > 1)) { // client
+        if ((ac <= 0) && (i.getClients() > 0) && (servers > 0)) { // client
             // departure
             int[] temp = { i.getClients() - 1, i.getUsers(), servers + ac };
             set.add(new BankQueues(temp));
         }
-        if ((ac >= 0) && (i.getUsers() > 0) && (servers < maxServers - 1)) { // user
+        if ((ac >= 0) && (i.getUsers() > 0) && (servers < maxServers)) { // user
             // departure
             int[] temp = { i.getClients(), i.getUsers() - 1, servers + ac };
             set.add(new BankQueues(temp));
@@ -304,13 +305,11 @@ public class Bank2Queues extends CTMDP<BankQueues, BankServers> {
                 userMinuteCost, clientProbability, lambda, mu, maxCapacity,
                 maxServers);
 
-        ValueIterationSolver<BankQueues, BankServers> solv = new ValueIterationSolver<BankQueues, BankServers>(
-                prob, 0.06);
-        // RelativeValueIterationSolver<BankQueues,BankServers> solv = new
-        // RelativeValueIterationSolver<
-        // BankQueues,BankServers>(prob,1.1);
-
-        solv.useGaussSeidel(false);
+        ValueIterationSolver<BankQueues, BankServers> solv = new ValueIterationSolver<BankQueues, BankServers>(prob, 0.06);
+        //RelativeValueIterationSolver<BankQueues,BankServers> solv = new RelativeValueIterationSolver<BankQueues,BankServers>(prob);
+        prob.setSolver(solv);
+        prob.setDebugLevel(4);
+        //solv.useGaussSeidel(false);
         // try{
         prob.solve();
         // prob.printSolution(new PrintWriter("salida.txt"));

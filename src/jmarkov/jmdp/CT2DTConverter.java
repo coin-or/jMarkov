@@ -114,23 +114,24 @@ public class CT2DTConverter<S extends State, A extends Action> extends
             public Iterator<S> iterator() {
                 return new Iterator<S>() {
                     private boolean wasAdded = false;
-                    private boolean justAdded = false;
+//                  private boolean justAdded = false;
                     private S theNext = null;
+                    Iterator<S> iter =  reached.iterator();
 
                     public boolean hasNext() {
-                        return (!wasAdded) || reached.iterator().hasNext();
+                        return (!wasAdded) ||iter.hasNext();
                     }
 
                     public S next() {
                         // TODO needs testing!!
-                        if (!justAdded)
-                            theNext = reached.iterator().next();
-                        if ((!wasAdded) && theNext.compareTo(i) == -1) {
+//                      if (!justAdded)
+                        if ((!wasAdded)) {
                             wasAdded = true;
-                            justAdded = true;
+//                          justAdded = true;
                             return i;
                         } else {
-                            justAdded = false;
+//                          justAdded = false;
+                            theNext = iter.next();
                             return theNext;
                         }
                     }
